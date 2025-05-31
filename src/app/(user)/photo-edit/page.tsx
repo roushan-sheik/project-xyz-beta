@@ -3,26 +3,11 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import "./style.css"; // Import the separate CSS file
 import Image from "next/image";
 import Button from "@/components/ui/Button";
 import Menu from "@/components/home/Menu";
-
-// Zod validation schema - FIXED: Made template optional since you're not using it
-const photoEditingSchema = z.object({
-  template: z.string().optional(), // Made optional since you don't have template selection
-  images: z.object({
-    image1: z
-      .any()
-      .refine((files) => files && files.length > 0, "画像1を選択してください"),
-    image2: z.any().optional(),
-    image3: z.any().optional(),
-  }),
-  processingContent: z.string().min(1, "加工内容の詳細を入力してください"),
-  referenceInfo: z.string().optional(),
-  completionDate: z.string().min(1, "納品希望日を入力してください"),
-});
+import photoEditingSchema from "@/schemas/photoEdit";
 
 type PhotoEditingFormData = z.infer<typeof photoEditingSchema>;
 
