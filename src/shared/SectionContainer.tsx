@@ -25,7 +25,7 @@ const SectionContainer = ({
       {...restWrapperProps}
     >
       <div
-        className={`flex flex-col mx-auto xl:max-w-[85%] px-5 w-full ${
+        className={`flex flex-col mx-auto xl:max-w-[85%] w-full ${
           innerClassName || ""
         }`}
         {...restInnerProps}
