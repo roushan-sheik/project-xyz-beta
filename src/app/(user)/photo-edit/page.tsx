@@ -8,6 +8,7 @@ import Image from "next/image";
 import Button from "@/components/ui/Button";
 import Menu from "@/components/home/Menu";
 import photoEditingSchema from "@/schemas/photoEdit";
+import { z } from "zod";
 
 type PhotoEditingFormData = z.infer<typeof photoEditingSchema>;
 
