@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import "./style.css"; // Import the separate CSS file
+import "./style.css";
 import Image from "next/image";
 import Button from "@/components/ui/Button";
 import Menu from "@/components/home/Menu";

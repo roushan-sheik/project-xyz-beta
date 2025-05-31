@@ -1,8 +1,7 @@
 import { z } from "zod";
 
-// Zod validation schema - FIXED: Made template optional since you're not using it
 const photoEditingSchema = z.object({
-  template: z.string().optional(), // Made optional since you don't have template selection
+  template: z.string().optional(),
   images: z.object({
     image1: z
       .any()
