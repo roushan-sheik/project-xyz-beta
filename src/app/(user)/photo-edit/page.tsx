@@ -9,13 +9,13 @@ import Image from "next/image";
 import Button from "@/components/ui/Button";
 import Menu from "@/components/home/Menu";
 
-// Zod validation schema
+// Zod validation schema - FIXED: Made template optional since you're not using it
 const photoEditingSchema = z.object({
-  template: z.string().min(1, "テンプレートを選択してください"),
+  template: z.string().optional(), // Made optional since you don't have template selection
   images: z.object({
     image1: z
       .any()
-      .refine((file) => file?.length > 0, "画像1を選択してください"),
+      .refine((files) => files && files.length > 0, "画像1を選択してください"),
     image2: z.any().optional(),
     image3: z.any().optional(),
   }),
@@ -39,8 +39,12 @@ const PhotoEditingForm: React.FC = () => {
     handleSubmit,
     formState: { errors },
     setValue,
+    clearErrors,
   } = useForm<PhotoEditingFormData>({
     resolver: zodResolver(photoEditingSchema),
+    defaultValues: {
+      template: "default", // Set a default value
+    },
   });
 
   const onSubmit = (data: PhotoEditingFormData) => {
@@ -56,6 +60,8 @@ const PhotoEditingForm: React.FC = () => {
     if (files && files.length > 0) {
       const file = files[0];
       setValue(`images.${imageKey}`, files);
+      // Clear any existing error for this field
+      clearErrors(`images.${imageKey}`);
 
       // Create image preview
       const reader = new FileReader();
@@ -101,10 +107,10 @@ const PhotoEditingForm: React.FC = () => {
             </div>
           )}
 
-          {/* Main Form - Added onSubmit handler */}
+          {/* Main Form */}
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="glass-card p-8">
-              {/* Template Selection */}
+              {/* Image Upload Section */}
               <div className="mb-8">
                 <h2 className="text-xl font-semibold mb-4">画像アップロード</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -202,11 +208,6 @@ const PhotoEditingForm: React.FC = () => {
                     </div>
                   ))}
                 </div>
-                {errors.template && (
-                  <p className="error-message mt-2">
-                    {errors.template.message}
-                  </p>
-                )}
               </div>
 
               {/* Processing Content */}
