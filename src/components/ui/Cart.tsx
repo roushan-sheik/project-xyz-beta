@@ -11,7 +11,7 @@ const Cart = ({ item }: CartProps) => {
       style={{ animationDelay: `${item.id * 0.1}s` }}
     >
       {/* circle   */}
-      <div className="glass-mid w-4 h-4 rounded-full"></div>
+      <div className="glass w-4 h-4 rounded-full"></div>
       <div className="text-center ">
         {/* Title */}
         <h3 className="text-white text-heading2 font-medium">{item.title}</h3>
