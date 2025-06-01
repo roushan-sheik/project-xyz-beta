@@ -1,8 +1,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
-import Sidebar from "@/components/dahsboard/layout/Sidebar";
-import Header from "@/components/dahsboard/layout/Header";
+import Sidebar from "@/components/dashboard/layout/Sidebar";
+import Header from "@/components/dashboard/layout/Header";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -7,6 +8,7 @@ import { usePathname } from "next/navigation";
 import * as Icons from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { MENU_ITEMS } from "@/constants/dashboard/constants";
+import Image from "next/image";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -29,7 +31,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   };
 
   return (
-    <aside className="w-64 xl:w-72 h-full glass-card border-0 border-r border-white/10 flex flex-col overflow-hidden">
+    <aside className="w-64 xl:w-90 h-full bg-pri border-0  flex flex-col overflow-hidden">
       {/* Close button for mobile - positioned absolutely */}
       <button
         onClick={onClose}
@@ -98,12 +100,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       <div className="p-3 sm:p-4 border-t border-white/10">
         <div className="glass p-3 sm:p-4 rounded-lg">
           <div className="flex items-center space-x-2 sm:space-x-3">
-            <img
+            <Image
+              width={100}
+              height={100}
               src={
                 user?.avatar ||
                 "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face"
               }
-              alt={user?.name}
+              alt={user?.name as string}
               className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover flex-shrink-0"
             />
             <div className="flex-1 min-w-0">

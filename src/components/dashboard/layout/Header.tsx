@@ -11,6 +11,7 @@ import {
   LogOut,
   ChevronDown,
 } from "lucide-react";
+import Image from "next/image";
 
 interface HeaderProps {
   onMenuToggle: () => void;
@@ -52,7 +53,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, isSidebarOpen }) => {
 
   return (
     <>
-      <header className="glass-card border-0 border-b border-white/10 w-full">
+      <header className="bg-pri shadow-pri card border-0 border-b border-white/10 w-full">
         <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 lg:py-5">
           {/* Left Section */}
           <div className="flex items-center space-x-3 sm:space-x-4 min-w-0 flex-1">
@@ -169,12 +170,14 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, isSidebarOpen }) => {
                 className="flex items-center space-x-2 sm:space-x-3 p-1.5 sm:p-2 rounded-lg glass hover:glass-mid transition-all duration-200"
                 aria-label="User menu"
               >
-                <img
+                <Image
+                  width={40}
+                  height={40}
                   src={
                     user?.avatar ||
                     "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face"
                   }
-                  alt={user?.name}
+                  alt={user?.name as string}
                   className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover flex-shrink-0"
                 />
                 <div className="hidden md:block text-left min-w-0">

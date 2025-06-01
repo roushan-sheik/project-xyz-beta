@@ -87,9 +87,9 @@ const Dashboard = () => {
           {/* Quote Section */}
           <section className="bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg p-8 text-center">
             <blockquote className="text-xl italic text-gray-800 mb-4">
-              "Et harum quidem rerum facilis est et expedita distinctio. Nam
+              ` Et harum quidem rerum facilis est et expedita distinctio. Nam
               libero tempore, cum soluta nobis est eligendi optio cumque nihil
-              impedit quo minus."
+              impedit quo minus.`
             </blockquote>
             <cite className="text-gray-600 font-medium">- Lorem Ipsum</cite>
           </section>
