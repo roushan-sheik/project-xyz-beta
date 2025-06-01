@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, FieldError } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import "./style.css";
 import Image from "next/image";
@@ -67,6 +67,14 @@ const PhotoEditingForm: React.FC = () => {
       ...prev,
       [imageKey]: undefined,
     }));
+  };
+
+  // Helper function to get error message
+  const getErrorMessage = (error: any): string => {
+    if (typeof error === "object" && error !== null && "message" in error) {
+      return error.message;
+    }
+    return "";
   };
 
   return (
@@ -184,11 +192,11 @@ const PhotoEditingForm: React.FC = () => {
                         imageKey as keyof typeof errors.images
                       ] && (
                         <p className="error-message">
-                          {
+                          {getErrorMessage(
                             errors.images[
                               imageKey as keyof typeof errors.images
-                            ]?.message
-                          }
+                            ]
+                          )}
                         </p>
                       )}
                     </div>
@@ -208,7 +216,7 @@ const PhotoEditingForm: React.FC = () => {
                 />
                 {errors.processingContent && (
                   <p className="error-message">
-                    {errors.processingContent.message}
+                    {getErrorMessage(errors.processingContent)}
                   </p>
                 )}
               </div>
@@ -237,7 +245,7 @@ const PhotoEditingForm: React.FC = () => {
                 />
                 {errors.completionDate && (
                   <p className="error-message">
-                    {errors.completionDate.message}
+                    {getErrorMessage(errors.completionDate)}
                   </p>
                 )}
               </div>
