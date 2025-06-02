@@ -62,7 +62,7 @@ const VideoEditingForm: React.FC = () => {
     <div className="main_gradient_bg">
       <Menu text="アリバイ動画音声の依頼" position="left" className="pl-10" />
       <div className="main-gradient-bg min-h-screen p-4">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           {/* Success Notification */}
           {showSuccess && (
             <div className="glass-card success-notification p-4 mb-6 text-center">
