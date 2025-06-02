@@ -177,7 +177,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, isSidebarOpen }) => {
                     user?.avatar ||
                     "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face"
                   }
-                  alt={user?.name as string}
+                  alt={(user?.name as string) || "User Avatar"}
                   className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover flex-shrink-0"
                 />
                 <div className="hidden md:block text-left min-w-0">

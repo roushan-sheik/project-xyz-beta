@@ -31,7 +31,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   };
 
   return (
-    <aside className="w-64 xl:w-90 h-full bg-pri border-0  flex flex-col overflow-hidden">
+    <aside className="w-64 xl:w-90 h-full bg-pri border-0 border-b border-white/10 flex flex-col overflow-hidden">
       {/* Close button for mobile - positioned absolutely */}
       <button
         onClick={onClose}
@@ -107,7 +107,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                 user?.avatar ||
                 "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face"
               }
-              alt={user?.name as string}
+              alt={(user?.name as string) || "Loading..."}
               className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover flex-shrink-0"
             />
             <div className="flex-1 min-w-0">
