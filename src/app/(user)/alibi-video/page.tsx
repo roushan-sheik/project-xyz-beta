@@ -6,7 +6,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import "./style.css";
 import Button from "@/components/ui/Button";
 import Menu from "@/components/home/Menu";
-
 import { z } from "zod";
 import videoEditingSchema from "@/schemas/videoEdit";
 
