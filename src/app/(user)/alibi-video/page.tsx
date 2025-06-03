@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -31,6 +30,7 @@ const VideoEditingForm: React.FC = () => {
 
   const onSubmit = (data: VideoEditingFormData) => {
     console.log("Form submitted:", data);
+    console.log({ videoFile });
     setShowSuccess(true);
     setTimeout(() => setShowSuccess(false), 3000);
   };
@@ -142,7 +142,9 @@ const VideoEditingForm: React.FC = () => {
                   )}
                 </div>
                 {errors.video && (
-                  <p className="error-message mt-2">{errors.video.message}</p>
+                  <p className="error-message mt-2">
+                    {errors.video.message as string}
+                  </p>
                 )}
               </div>
 
