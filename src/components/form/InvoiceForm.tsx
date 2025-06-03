@@ -48,7 +48,7 @@ export default function InvoiceForm({ onSubmit }: InvoiceFormProps) {
 
   return (
     <div className="min-h-screen main_gradient_bg  ">
-      <Menu text="ダミー請求書の作成" position="left" />
+      <Menu text="ダミー請求書の作成" position="left" className="ml-6" />
       <div className="flex items-center mt-8 justify-center">
         <div className="w-full max-w-3xl">
           {/* Header */}
