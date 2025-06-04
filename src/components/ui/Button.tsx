@@ -79,7 +79,7 @@ const variantClasses: Record<ButtonVariant, string> = {
     "cursor-pointer",
   ].join(" "),
   glassBrand: [
-    "bg-gradient-to-r from-[var(--color-brand-500)]/20 to-[var(--color-brand-700)]/10",
+    "bg-gradient-to-r from-[var(--color-brand-500)]/20 to-[var(--color-brand-700)]/10 ",
     "text-white border-[var(--color-brand-400)]/30",
     "hover:from-[var(--color-brand-500)]/30 hover:to-[var(--color-brand-700)]/20",
     "shadow-lg shadow-[var(--color-brand-500)]/20",
@@ -110,7 +110,7 @@ const variantClasses: Record<ButtonVariant, string> = {
 // Size classes
 const sizeClasses: Record<ButtonSize, string> = {
   sm: "h-8 px-3 text-xs",
-  default: "h-10 px-4 py-2",
+  default: "h-10 px-4 py-3",
   md: "h-11 px-6 text-base",
   lg: "h-12 px-8 text-lg",
   xl: "h-14 px-10 text-xl",
@@ -216,7 +216,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         )}
 
         {/* Glassmorphism shine effect */}
-        <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none" />
+        <div className="absolute  inset-0 rounded-lg bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none" />
       </button>
     );
   }
