@@ -12,10 +12,10 @@ const DynamicLucidIcon: React.FC<DynamicLucidIconProps> = ({
   name,
   ...props
 }) => {
-  const IconComponent = LucidIcons[name];
+  const IconComponent = LucidIcons[name] as React.FC<LucideProps>;
 
   if (!IconComponent) {
-    console.warn(`Lucid Icon "${name}" not found. Rendering a fallback icon.`);
+    console.warn(`Lucide Icon "${name}" not found. Rendering fallback.`);
     return (
       <LucidIcons.AlertTriangle
         size={props.size || 24}
@@ -24,7 +24,7 @@ const DynamicLucidIcon: React.FC<DynamicLucidIconProps> = ({
     );
   }
 
-  return React.createElement(IconComponent, props);
+  return <IconComponent {...props} />;
 };
 
 export default DynamicLucidIcon;

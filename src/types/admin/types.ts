@@ -1,8 +1,10 @@
+import { LucidIconName } from "@/components/admin/DynamicLucidIcon";
+
 export interface NavItem {
   id: string;
   label: string;
   href: string;
-  icon: string; // Using string for icon name to be mapped to Lucid Icon component
+  icon: LucidIconName;
 }
 
 export interface DashboardCardProps {
