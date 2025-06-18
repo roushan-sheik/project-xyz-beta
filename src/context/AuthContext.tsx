@@ -1,4 +1,6 @@
 "use client";
+import { mockUsers } from "@/infrastructure/admin/mockUsers";
+import { User } from "@/types/user/types";
 import React, {
   createContext,
   useContext,
@@ -6,15 +8,6 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
-
-// Types
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: "user" | "admin";
-  avatar?: string;
-}
 
 export interface AuthContextType {
   user: User | null;
@@ -31,26 +24,6 @@ export interface AuthContextType {
 interface AuthProviderProps {
   children: ReactNode;
 }
-
-// Mock Data
-const mockUsers: Record<"user" | "admin", User> = {
-  user: {
-    id: "1",
-    name: "John Doe",
-    email: "john@example.com",
-    role: "user",
-    avatar:
-      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
-  },
-  admin: {
-    id: "2",
-    name: "Admin User",
-    email: "admin@example.com",
-    role: "admin",
-    avatar:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
-  },
-};
 
 // Auth Context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -104,8 +77,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         throw new Error("Email and password are required");
       }
 
-      const mockUser = mockUsers[role];
-      setUser(mockUser);
+      const mockUser = mockUsers[0];
       setIsAuthenticated(true);
       localStorage.setItem("user", JSON.stringify(mockUser));
     } catch (error) {
