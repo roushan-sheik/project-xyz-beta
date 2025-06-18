@@ -1,8 +1,13 @@
 import { DashboardCardProps, NavItem } from "@/types/admin/types";
 
 export const navItems: NavItem[] = [
-  { id: "1", label: "ユーザー管理", href: "/users", icon: "Users" },
-  { id: "2", label: "アリバイ写真DL管理", href: "/photo-dl", icon: "Image" },
+  { id: "1", label: "ユーザー管理", href: "/admin/users", icon: "Users" },
+  {
+    id: "2",
+    label: "アリバイ写真DL管理",
+    href: "/admin/photo-albums",
+    icon: "Image",
+  },
   {
     id: "3",
     label: "アリバイ加工依頼一覧",
@@ -42,12 +47,47 @@ export const navItems: NavItem[] = [
 ];
 
 export const dashboardCards: DashboardCardProps[] = [
-  { id: "card1", label: "ユーザー管理", icon: "Users" },
-  { id: "card2", label: "アリバイ写真DL管理", icon: "Image" },
-  { id: "card3", label: "アリバイ加工依頼一覧", icon: "Settings" },
-  { id: "card4", label: "アリバイ動画音声依頼一覧", icon: "PlayCircle" },
-  { id: "card5", label: "アリバイLINE依頼一覧", icon: "MessageSquare" },
-  { id: "card6", label: "アリバイ相談チャット一覧", icon: "MessageCircle" },
-  { id: "card7", label: "アリバイお土産依頼一覧", icon: "Gift" },
-  { id: "card8", label: "ダミー請求依頼一覧", icon: "FileText" },
+  { id: "card1", label: "ユーザー管理", icon: "Users", href: "/admin/users" },
+  {
+    id: "card2",
+    label: "アリバイ写真DL管理",
+    icon: "Image",
+    href: "/admin/photo-albums",
+  },
+  {
+    id: "card3",
+    label: "アリバイ加工依頼一覧",
+    icon: "Settings",
+    href: "/admin/process-requests",
+  },
+  {
+    id: "card4",
+    label: "アリバイ動画音声依頼一覧",
+    icon: "PlayCircle",
+    href: "/admin/video-audio-requests",
+  },
+  {
+    id: "card5",
+    label: "アリバイLINE依頼一覧",
+    icon: "MessageSquare",
+    href: "/admin/line-requests",
+  },
+  {
+    id: "card6",
+    label: "アリバイ相談チャット一覧",
+    icon: "MessageCircle",
+    href: "/admin/chat-consultations",
+  },
+  {
+    id: "card7",
+    label: "アリバイお土産依頼一覧",
+    icon: "Gift",
+    href: "/admin/souvenir-requests",
+  },
+  {
+    id: "card8",
+    label: "ダミー請求依頼一覧",
+    icon: "FileText",
+    href: "/admin/dummy-requests",
+  },
 ];
