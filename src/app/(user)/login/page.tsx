@@ -5,6 +5,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Menu from "@/components/home/Menu";
 import Button from "@/components/ui/Button";
+import {
+  LoginRequest,
+  userApiClient,
+} from "@/infrastructure/user/userAPIClient";
+import Cookies from "js-cookie";
+import { LoginResponse } from "@/infrastructure/user/utils/types";
+import { ToastContainer, toast } from "react-toastify";
+import delay from "@/utils/function/delay";
 
 // Zod validation schema
 const loginSchema = z.object({
@@ -20,11 +28,8 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
-interface LoginPageProps {}
-
-const LoginPage: React.FC<LoginPageProps> = () => {
-  const [loading, setLoading] = useState<boolean>(false);
-
+const LoginPage = () => {
+  const [loading, setLoading] = useState(false);
   const {
     register,
     handleSubmit,
@@ -38,25 +43,35 @@ const LoginPage: React.FC<LoginPageProps> = () => {
     setLoading(true);
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const response: LoginResponse = await userApiClient.userLogin(data);
 
-      // Handle successful login
-      console.log("Login data:", data);
+      if (response.access && response.refresh) {
+        Cookies.set("accessToken", response.access, {
+          expires: 7,
+          secure: process.env.NODE_ENV === "production",
+        });
+        Cookies.set("refreshToken", response.refresh, {
+          expires: 30,
+          secure: process.env.NODE_ENV === "production",
+        });
+      }
+      toast("Login Successfully", {
+        ariaLabel: "something",
+      });
+      delay(1000);
       window.location.href = "/";
     } catch (error) {
       console.error("Login failed:", error);
-      // Handle error state here
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen main_gradient_bg   text-white">
+    <div className="min-h-screen main_gradient_bg text-white">
       <Menu text="ログイン" />
-
       <main className="flex min-h-screen items-center justify-center px-4">
+        <ToastContainer />
         <div className="w-full max-w-md">
           <div className="space-y-6">
             <div className="rounded-lg border glass-card p-6 space-y-4">
@@ -99,7 +114,6 @@ const LoginPage: React.FC<LoginPageProps> = () => {
               className="w-full"
               type="button"
               onClick={handleSubmit(onSubmit)}
-              //   disabled={loading || !isValid}
               loading={loading}
               variant="glassBrand"
             >

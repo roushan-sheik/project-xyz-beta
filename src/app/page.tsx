@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import SectionContainer from "@/shared/SectionContainer";
@@ -6,12 +5,14 @@ import { useState } from "react";
 import { menuItems } from "@/constants/home/home";
 import { MenuItem } from "@/types/home/types";
 import Cart from "@/components/ui/Cart";
-
+import { useUser } from "@/context/AuthContext";
 import Link from "next/link";
 import Menu from "@/components/home/Menu";
 
 const MainComponent = () => {
   const [loading, setLoading] = useState(false);
+  const { user } = useUser();
+  console.log({ user });
 
   if (loading) {
     return (

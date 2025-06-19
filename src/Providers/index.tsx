@@ -1,5 +1,5 @@
 import React from "react";
-import { AuthProvider } from "@/context/AuthContext";
+import UserProvider from "@/context/AuthContext";
 import { QueryProvider } from "./QueryProviders";
 
 interface ProvidersProps {
@@ -9,9 +9,9 @@ interface ProvidersProps {
 const Providers: React.FC<ProvidersProps> = ({ children }) => {
   return (
     <>
-      <QueryProvider>
-        <AuthProvider>{children}</AuthProvider>
-      </QueryProvider>
+      <UserProvider>
+        <QueryProvider>{children}</QueryProvider>
+      </UserProvider>
     </>
   );
 };
