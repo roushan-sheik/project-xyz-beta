@@ -46,6 +46,7 @@ const LoginPage = () => {
       const response: LoginResponse = await userApiClient.userLogin(data);
 
       if (response.access && response.refresh) {
+        // Set in Cookies
         Cookies.set("accessToken", response.access, {
           expires: 7,
           secure: process.env.NODE_ENV === "production",
@@ -54,12 +55,24 @@ const LoginPage = () => {
           expires: 30,
           secure: process.env.NODE_ENV === "production",
         });
+
+        // Also set in localStorage
+        localStorage.setItem("accessToken", response.access);
       }
+
       toast("Login Successfully", {
         ariaLabel: "something",
       });
-      delay(1000);
-      window.location.href = "/";
+
+      // Optional delay (should be `await`)
+      await new Promise((resolve) => setTimeout(resolve, 800));
+
+      // Redirect after success
+      if (response.user.kind === "SUPER_ADMIN") {
+        window.location.href = "/admin";
+      } else {
+        window.location.href = "/";
+      }
     } catch (error) {
       console.error("Login failed:", error);
     } finally {

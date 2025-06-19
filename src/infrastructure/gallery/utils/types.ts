@@ -1,40 +1,24 @@
-// src/api/gallery/utils/types.ts
-export interface GalleryUploadRequest {
+export type Photo = {
+  uid: string;
+  title: string;
+  code: string;
+  description: string;
+  status: "ACTIVE" | "INACTIVE";
+  file_type: "image";
+  file: string;
+  created_at?: string;
+};
+
+export type GalleryResponse = {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: Photo[];
+};
+
+export type CreatePhotoRequest = {
   title: string;
   description: string;
   file_type: "image";
-  file: File;
-}
-
-export interface GalleryUploadResponse {
-  id: number | string;
-  url: string;
-  title: string;
-  description: string;
-  file_type: string;
-  created_at: string;
-  category?: string;
-  message?: string;
-}
-
-export interface GalleryPhoto {
-  id: number | string;
-  url: string;
-  title?: string;
-  description?: string;
-  created_at: string;
-  category?: string;
-  file_type?: string;
-}
-
-export interface GalleryPhotosResponse {
-  photos: GalleryPhoto[];
-  total?: number;
-  page?: number;
-  limit?: number;
-}
-
-export interface GalleryDeleteResponse {
-  message: string;
-  success: boolean;
-}
+  file: string; // Base64 encoded file
+};

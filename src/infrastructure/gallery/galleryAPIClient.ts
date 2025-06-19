@@ -1,113 +1,115 @@
-// src/api/gallery/galleryAPIClient.ts
 import delay from "@/utils/function/delay";
-import {
-  GalleryUploadRequest,
-  GalleryUploadResponse,
-  GalleryPhoto,
-} from "./utils/types";
+import { CreatePhotoRequest, GalleryResponse, Photo } from "./utils/types";
 
 class GalleryAPIClient {
-  private readonly headers: HeadersInit = {
-    Accept: "application/json",
-  };
+  private readonly baseURL = "http://13.208.176.127:8000";
+  private authToken: string | null = null;
 
-  private readonly apiUrl = "http://13.208.176.127:8000";
+  private get headers(): HeadersInit {
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    };
 
-  public async uploadPhoto(
-    data: GalleryUploadRequest
-  ): Promise<GalleryUploadResponse> {
-    try {
-      console.log("🚀 Upload starting with data:", {
-        title: data.title,
-        description: data.description,
-        file_type: data.file_type,
-        fileName: data.file.name,
-        fileSize: data.file.size,
-        fileType: data.file.type,
-      });
+    if (this.authToken) {
+      headers.Authorization = `Bearer ${this.authToken}`;
+    }
 
-      const formData = new FormData();
-      formData.append("title", data.title);
-      formData.append("description", data.description);
-      formData.append("file_type", data.file_type);
-      formData.append("file", data.file);
+    return headers;
+  }
 
-      console.log("📝 FormData entries:");
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key}:`, value);
+  public setAuthToken(token: string) {
+    this.authToken = token;
+  }
+
+  public clearAuthToken() {
+    this.authToken = null;
+  }
+
+  private async handleResponse<T>(response: Response): Promise<T> {
+    if (!response.ok) {
+      if (response.status === 401) {
+        throw new Error("認証が必要です。ログインしてください。");
       }
 
-      console.log("🌐 Making request to:", `${this.apiUrl}/gallery/admin`);
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || `API Error: ${response.status}`);
+    }
 
-      const response = await fetch(`${this.apiUrl}/gallery/admin`, {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-        },
-        body: formData,
-      });
+    return response.json();
+  }
 
-      console.log("📡 Response status:", response.status);
-      console.log(
-        "📡 Response headers:",
-        Object.fromEntries(response.headers.entries())
+  private fileToBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result as string;
+        // Remove data:image/jpeg;base64, prefix
+        const base64 = result.split(",")[1];
+        resolve(base64);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  public async getPhotos(page = 1, limit = 20): Promise<GalleryResponse> {
+    try {
+      const response = await fetch(
+        `${this.baseURL}/gallery/admin?page=${page}&limit=${limit}`,
+        {
+          method: "GET",
+          headers: this.headers,
+        }
       );
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("❌ Response error body:", errorText);
-        throw new Error(
-          `Failed to upload photo: ${response.status} ${response.statusText} - ${errorText}`
-        );
-      }
-
-      const result = await response.json();
-      console.log("✅ Upload successful:", result);
-      return result;
+      return await this.handleResponse<GalleryResponse>(response);
     } catch (error) {
-      console.error("❌ Upload error:", error);
+      console.error("Failed to fetch photos:", error);
       throw error;
     }
   }
 
-  public async getPhotos(category?: string): Promise<GalleryPhoto[]> {
+  public async createPhoto(data: {
+    title: string;
+    description: string;
+    file: File;
+  }): Promise<Photo> {
     try {
-      await delay(500); // Optional delay for UX
+      const base64File = await this.fileToBase64(data.file);
 
-      const url = new URL(`${this.apiUrl}/gallery/photos`);
-      if (category && category !== "all") {
-        url.searchParams.append("category", category);
-      }
+      const requestBody: CreatePhotoRequest = {
+        title: data.title,
+        description: data.description || "",
+        file_type: "image",
+        file: base64File,
+      };
 
-      const response = await fetch(url.toString(), {
-        method: "GET",
+      const response = await fetch(`${this.baseURL}/gallery/admin`, {
+        method: "POST",
         headers: this.headers,
+        body: JSON.stringify(requestBody),
       });
 
-      if (!response.ok) {
-        throw new Error(`Failed to fetch photos: ${response.statusText}`);
-      }
-
-      const result = await response.json();
-      return result.photos || [];
+      return await this.handleResponse<Photo>(response);
     } catch (error) {
-      console.error("Fetch photos error:", error);
+      console.error("Failed to create photo:", error);
       throw error;
     }
   }
 
-  public async deletePhoto(photoId: number | string): Promise<void> {
+  public async deletePhoto(uid: string): Promise<void> {
     try {
-      const response = await fetch(`${this.apiUrl}/gallery/admin/${photoId}`, {
+      const response = await fetch(`${this.baseURL}/gallery/admin/${uid}`, {
         method: "DELETE",
         headers: this.headers,
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to delete photo: ${response.statusText}`);
+        throw new Error(`Failed to delete photo: ${response.status}`);
       }
     } catch (error) {
-      console.error("Delete photo error:", error);
+      console.error("Failed to delete photo:", error);
       throw error;
     }
   }

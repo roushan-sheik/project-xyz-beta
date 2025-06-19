@@ -17,7 +17,7 @@ const Button: React.FC<{
   type = "button",
 }) => {
   const baseClasses =
-    "flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50";
+    "flex items-center gap-2 px-4 lg:py-3 py-2  rounded-lg font-medium transition-colors disabled:opacity-50";
 
   const variantClasses = {
     primary: "bg-blue-600 text-white hover:bg-blue-700",
