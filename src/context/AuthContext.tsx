@@ -1,5 +1,5 @@
 "use client";
-import { getCurrentUser } from "@/infrastructure/user/utils/admin/utils";
+import { getCurrentUser } from "@/infrastructure/admin/utils";
 import { User } from "@/types/user/types";
 import {
   createContext,
