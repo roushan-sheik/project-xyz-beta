@@ -2,7 +2,6 @@
 
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { useState } from "react";
-
 import Sidebar from "@/components/admin/Sidebar";
 import { navItems } from "@/constants/admin";
 import HamburgerMenu from "@/components/admin/HamburgerMenu";

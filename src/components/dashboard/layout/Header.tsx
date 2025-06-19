@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useAuth } from "@/context/AuthContext";
+// import { useAuth } from "@/context/AuthContext";
 import {
   Menu,
   X,
@@ -17,14 +17,19 @@ interface HeaderProps {
   onMenuToggle: () => void;
   isSidebarOpen: boolean;
 }
+const user = {
+  role: "Admin",
+  name: "Jhon",
+  avatar: "",
+  email: "test@gmail.com",
+};
 
 const Header: React.FC<HeaderProps> = ({ onMenuToggle, isSidebarOpen }) => {
-  const { user, logout } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
 
   const handleLogout = () => {
-    logout();
+    // logout();
     setShowUserMenu(false);
   };
 

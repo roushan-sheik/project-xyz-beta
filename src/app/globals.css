@@ -210,6 +210,22 @@ body {
   overflow: hidden;
   transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
 }
+.bg-admin {
+  background-color: #f0f2f7;
+}
+.bg-glass {
+  width: 500px;
+  padding: 40px;
+  color: #333;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+
+  z-index: 2;
+}
 
 .glass-card::before {
   content: "";

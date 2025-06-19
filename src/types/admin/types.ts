@@ -10,5 +10,6 @@ export interface NavItem {
 export interface DashboardCardProps {
   id: string;
   label: string;
+  href: string;
   icon: string; // Using string for icon name
 }

@@ -109,8 +109,8 @@ const variantClasses: Record<ButtonVariant, string> = {
 
 // Size classes
 const sizeClasses: Record<ButtonSize, string> = {
-  sm: "h-8 px-3 text-xs",
-  default: "h-14 px-4 py-3",
+  sm: "h-6 px-3 text-xs",
+  default: "h-12 px-3 py-3",
   md: "h-11 px-6 text-base",
   lg: "h-12 px-8 text-lg",
   xl: "h-14 px-10 text-xl",

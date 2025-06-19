@@ -1,12 +1,10 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import * as Icons from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
+// import { useAuth } from "@/context/AuthContext";
 import { MENU_ITEMS } from "@/constants/dashboard/constants";
 import Image from "next/image";
 
@@ -16,11 +14,16 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
-  const { user } = useAuth();
+  // const { user } = useAuth();
   const pathname = usePathname();
-
+  const user = {
+    role: "admin",
+    name: "Jhon",
+    avatar: "",
+    email: "test@gmail.com",
+  };
   const filteredMenuItems = MENU_ITEMS.filter((item) =>
-    item.roles.includes(user?.role || "user")
+    item.roles.includes("user")
   );
 
   const getIcon = (iconName: string) => {
