@@ -1,15 +1,16 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { useAuth } from "@/context/AuthContext";
+
 import Sidebar from "@/components/dashboard/layout/Sidebar";
 import Header from "@/components/dashboard/layout/Header";
+import { useUser } from "@/context/AuthContext";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
 }
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { user, isLoading } = useUser();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Close sidebar on route change and handle window resize
@@ -52,7 +53,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   }
 
   // Redirect to login if not authenticated
-  if (!isAuthenticated) {
+  if (!user) {
     return (
       <div className="main_gradient_bg min-h-screen flex items-center justify-center">
         <div className="glass-card p-8 rounded-xl text-center max-w-md w-full mx-4">

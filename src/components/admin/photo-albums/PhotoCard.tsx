@@ -1,8 +1,7 @@
-import { Photo } from "@/app/(admin)/admin/(routes)/photo-albums/page";
+import { Photo } from "@/infrastructure/gallery/utils/types";
 
-// Photo Card Component (No modal on click)
 const PhotoCard: React.FC<{
-  photo: Photo;
+  photo: any;
   onDelete: (photoId: number | string) => void;
 }> = ({ photo, onDelete }) => (
   <div className="group overflow-hidden rounded-lg border border-gray-200 bg-white transition-all hover:shadow-lg">

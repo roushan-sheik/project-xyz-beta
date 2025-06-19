@@ -1,8 +1,5 @@
 "use client";
-import {
-  UploadFormData,
-  uploadSchema,
-} from "@/app/(admin)/admin/(routes)/photo-albums/page";
+
 import Button from "../ui/Button";
 import Input from "../ui/Input";
 import Select from "../ui/Select";
@@ -11,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { X } from "lucide-react";
+import { UploadFormData, uploadSchema } from "@/schemas/adminAlbumUpload";
 
 // Custom Modal with Light Gray Blur Background
 const CustomModal: React.FC<{
@@ -122,7 +120,11 @@ const PhotoUploadModal: React.FC<{
           type="file"
           accept="image/*"
           onChange={handleFileChange}
-          error={errors.file?.message}
+          error={
+            typeof errors.title?.message === "string"
+              ? errors.title.message
+              : undefined
+          }
         />
 
         {/* Preview */}

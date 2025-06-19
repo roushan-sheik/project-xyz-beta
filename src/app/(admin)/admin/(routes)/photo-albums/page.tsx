@@ -13,36 +13,7 @@ import {
   useDeletePhoto,
 } from "@/hooks/admin/useGalleryMutations";
 import { GALLERY_QUERIES } from "@/infrastructure/gallery/utils/queries";
-
-// Zod schema for photo upload form
-export const uploadSchema = z.object({
-  title: z.string().min(1, "タイトルは必須です"),
-  category: z.string().min(1, "カテゴリーを選択してください"),
-  description: z.string().optional(),
-  file: z
-    .any()
-    .refine((file) => {
-      if (typeof window === "undefined") return true;
-      return file instanceof File;
-    }, "写真ファイルを選択してください")
-    .refine((file) => {
-      if (typeof window === "undefined") return true;
-      return file?.size && file.size <= 5000000;
-    }, "ファイルサイズは5MB以下にしてください")
-    .refine((file) => {
-      if (typeof window === "undefined") return true;
-      const allowedTypes = [
-        "image/jpeg",
-        "image/jpg",
-        "image/png",
-        "image/webp",
-        "image/gif",
-      ];
-      return file?.type && allowedTypes.includes(file.type);
-    }, "対応していないファイル形式です"),
-});
-
-export type UploadFormData = z.infer<typeof uploadSchema>;
+import { UploadFormData } from "@/schemas/adminAlbumUpload";
 
 // Category Filter Component
 const CategoryFilter: React.FC<{
@@ -186,7 +157,7 @@ const MainComponent: React.FC = () => {
                       created_at: photo.created_at || new Date().toISOString(),
                     }}
                     onDelete={() => handleDeletePhoto(photo.uid)}
-                    isDeleting={isDeleting}
+                    // isDeleting={isDeleting}
                   />
                 ))}
                 {photos.length === 0 && (
@@ -228,7 +199,7 @@ const MainComponent: React.FC = () => {
         onClose={handleUploadModalClose}
         onSubmit={handlePhotoUpload}
         selectedCategory={selectedCategory}
-        isUploading={isUploading}
+        // isUploading={isUploading}
       />
     </div>
   );

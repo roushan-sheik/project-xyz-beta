@@ -1,5 +1,5 @@
 import delay from "@/utils/function/delay";
-import { mockUsers } from "./mockUsers";
+
 import { AdminUsersResponse } from "./utils/types";
 
 class AdminAPIClient {
@@ -11,7 +11,12 @@ class AdminAPIClient {
 
   public async getAdminUsers(): Promise<AdminUsersResponse> {
     await delay(1000);
-    return mockUsers;
+    return [
+      {
+        email: "test@gmail.com",
+        kind: "Admin",
+      },
+    ];
   }
 }
 
