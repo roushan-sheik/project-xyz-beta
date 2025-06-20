@@ -5,14 +5,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Menu from "@/components/home/Menu";
 import Button from "@/components/ui/Button";
-import {
-  LoginRequest,
-  userApiClient,
-} from "@/infrastructure/user/userAPIClient";
+import { userApiClient } from "@/infrastructure/user/userAPIClient";
 import Cookies from "js-cookie";
 import { LoginResponse } from "@/infrastructure/user/utils/types";
 import { ToastContainer, toast } from "react-toastify";
-import delay from "@/utils/function/delay";
 
 // Zod validation schema
 const loginSchema = z.object({
@@ -62,6 +58,7 @@ const LoginPage = () => {
 
       toast("Login Successfully", {
         ariaLabel: "something",
+        position: "top-center",
       });
 
       // Optional delay (should be `await`)
@@ -96,7 +93,7 @@ const LoginPage = () => {
                   type="email"
                   {...register("email")}
                   className={"glass-input  w-full p-3"}
-                  placeholder="your@email.com"
+                  placeholder="email"
                 />
                 {errors.email && (
                   <p className="mt-1 text-sm text-red-400">
@@ -113,7 +110,7 @@ const LoginPage = () => {
                   type="password"
                   {...register("password")}
                   className={"glass-input  w-full p-3"}
-                  placeholder="••••••••"
+                  placeholder="password"
                 />
                 {errors.password && (
                   <p className="mt-1 text-sm text-red-400">
