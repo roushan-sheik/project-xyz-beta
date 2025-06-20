@@ -1,6 +1,5 @@
-// http://13.208.176.127:8000/users/login
-
 import { LoginResponse } from "./utils/types";
+import { baseUrl } from "@/constants/baseApi";
 
 export interface LoginRequest {
   email: string;
@@ -12,7 +11,7 @@ class UserAPIClient {
     "Content-Type": "application/json",
     Accept: "application/json",
   };
-  private readonly apiUrl = "http://13.208.176.127:8000";
+  private readonly apiUrl = baseUrl;
 
   public async userLogin(credentials: LoginRequest): Promise<LoginResponse> {
     try {

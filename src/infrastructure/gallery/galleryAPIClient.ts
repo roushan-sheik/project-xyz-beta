@@ -1,7 +1,8 @@
-import { CreatePhotoRequest, GalleryResponse, Photo } from "./utils/types";
+import { GalleryResponse, Photo } from "./utils/types";
+import { baseUrl } from "@/constants/baseApi";
 
 class GalleryAPIClient {
-  private readonly baseURL = "http://13.208.176.127:8000";
+  private readonly baseURL = baseUrl;
   private authToken: string | null = null;
 
   private get headers(): HeadersInit {
