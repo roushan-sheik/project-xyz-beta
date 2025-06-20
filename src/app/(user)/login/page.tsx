@@ -9,6 +9,7 @@ import { userApiClient } from "@/infrastructure/user/userAPIClient";
 import Cookies from "js-cookie";
 import { LoginResponse } from "@/infrastructure/user/utils/types";
 import { ToastContainer, toast } from "react-toastify";
+import { user_role } from "@/constants/role";
 
 // Zod validation schema
 const loginSchema = z.object({
@@ -51,6 +52,10 @@ const LoginPage = () => {
           expires: 30,
           secure: process.env.NODE_ENV === "production",
         });
+        Cookies.set("role", response.user.kind, {
+          expires: 7,
+          secure: process.env.NODE_ENV === "production",
+        });
 
         // Also set in localStorage
         localStorage.setItem("accessToken", response.access);
@@ -64,10 +69,12 @@ const LoginPage = () => {
       // Optional delay (should be `await`)
       await new Promise((resolve) => setTimeout(resolve, 800));
 
-      // Redirect after success
-      if (response.user.kind === "SUPER_ADMIN") {
+      // Redirect after success and set user role
+      if (response.user.kind === user_role.SUPER_ADMIN) {
+        localStorage.setItem("role", user_role.SUPER_ADMIN);
         window.location.href = "/admin";
       } else {
+        localStorage.setItem("role", user_role.USER);
         window.location.href = "/";
       }
     } catch (error) {
@@ -79,7 +86,7 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen main_gradient_bg text-white">
-      <Menu text="ログイン" />
+      <div>ログイン</div>
       <main className="flex min-h-screen items-center justify-center px-4">
         <ToastContainer />
         <div className="w-full max-w-md">

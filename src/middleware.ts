@@ -2,19 +2,29 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const PUBLIC_ROUTES = ["/login", "/register", "/"];
+const PUBLIC_ROUTES = ["/login", "/register"];
 
 export async function middleware(request: NextRequest) {
   const accessToken = request.cookies.get("accessToken")?.value;
-  const refreshToken = request.cookies.get("refreshToken")?.value;
+  const role = request.cookies.get("role")?.value;
 
   const { pathname } = request.nextUrl;
 
   // 1. If it's a public route, let it pass
   if (PUBLIC_ROUTES.includes(pathname)) {
     // If user is already logged in and tries to access login/register, redirect to dashboard
-    if (accessToken && (pathname === "/login" || pathname === "/register")) {
+    if (
+      accessToken &&
+      (pathname === "/login" || pathname === "/register" || role === "USER")
+    ) {
       return NextResponse.redirect(new URL("/", request.url));
+    } else if (
+      accessToken &&
+      (pathname === "/login" ||
+        pathname === "/register" ||
+        role === "SUPER_ADMIN")
+    ) {
+      return NextResponse.redirect(new URL("/admin", request.url));
     }
     return NextResponse.next();
   }

@@ -1,5 +1,8 @@
+"use client";
 import React from "react";
 import { cn } from "@/utils/function/cn";
+import LogoutButton from "../logout/Logout";
+import { useUser } from "@/context/AuthContext";
 
 interface MenuProps {
   text: string;
@@ -14,6 +17,7 @@ const Menu: React.FC<MenuProps> = ({
   fontSize = "title3",
   className,
 }) => {
+  const { user } = useUser();
   return (
     <div
       className={cn(
@@ -25,6 +29,11 @@ const Menu: React.FC<MenuProps> = ({
     >
       <h2 className={cn(`text-${fontSize} my-2  ${className}`)}>{text}</h2>
       <div className="glass"></div>
+      {user && (
+        <div className="lg:m-8 mr-2 ml-2 mb-0 mt-4">
+          <LogoutButton variant="glass">Logout</LogoutButton>
+        </div>
+      )}
     </div>
   );
 };
