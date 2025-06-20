@@ -86,9 +86,9 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen main_gradient_bg text-white">
-      <div>ログイン</div>
-      <main className="flex min-h-screen items-center justify-center px-4">
+      <main className="flex min-h-screen flex-col items-center justify-center px-4">
         <ToastContainer />
+        <h2 className="text-white lg:text-3xl text-2xl mb-6">ログイン</h2>
         <div className="w-full max-w-md">
           <div className="space-y-6">
             <div className="rounded-lg border glass-card p-6 space-y-4">
