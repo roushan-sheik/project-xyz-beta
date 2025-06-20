@@ -15,7 +15,6 @@ import {
 import { GALLERY_QUERIES } from "@/infrastructure/gallery/utils/queries";
 import { UploadFormData } from "@/schemas/adminAlbumUpload";
 
-// Category Filter Component
 const CategoryFilter: React.FC<{
   selectedCategory: string;
   onCategoryChange: (category: string) => void;
@@ -152,7 +151,7 @@ const MainComponent: React.FC = () => {
                     key={photo.uid}
                     photo={{
                       id: photo.uid,
-                      url: `data:image/jpeg;base64,${photo.file}`,
+                      url: photo.file,
                       title: photo.title,
                       created_at: photo.created_at || new Date().toISOString(),
                     }}
