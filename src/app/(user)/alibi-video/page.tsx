@@ -7,16 +7,20 @@ import Button from "@/components/ui/Button";
 import Menu from "@/components/home/Menu";
 import { z } from "zod";
 import videoEditingSchema from "@/schemas/videoEdit";
-import { userApiClient } from "@/infrastructure/user/userAPIClient"; // Import your API client
-import { UserVideoAudioEditRequest } from "@/infrastructure/user/utils/types"; // Import the request type
+import { userApiClient } from "@/infrastructure/user/userAPIClient";
+import { UserVideoAudioEditRequest } from "@/infrastructure/user/utils/types";
+
+// Import react-toastify components and styles
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"; // Don't forget to import the CSS!
 
 type VideoEditingFormData = z.infer<typeof videoEditingSchema>;
 
 const VideoEditingForm: React.FC = () => {
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [showError, setShowError] = useState(false); // State for error notification
-  const [videoPreview, setVideoPreview] = useState<string | null>(null);
-  const [videoFile, setVideoFile] = useState<File | null>(null); // Keep track of the actual File object
+  // Removed showSuccess and showError states as react-toastify will handle them
+  const [mediaPreview, setMediaPreview] = useState<string | null>(null);
+  const [mediaFile, setMediaFile] = useState<File | null>(null);
+  const [mediaType, setMediaType] = useState<"video" | "audio" | null>(null);
 
   const {
     register,
@@ -32,18 +36,15 @@ const VideoEditingForm: React.FC = () => {
   });
 
   const onSubmit = async (data: VideoEditingFormData) => {
-    console.log("Form submitted:", data);
-    console.log({ videoFile });
+    // console.log("Form submitted:", data);
+    // console.log({ mediaFile }); // Changed from videoFile to mediaFile
 
     try {
       const requestFiles: string[] = [];
-      if (videoFile) {
-        requestFiles.push(`uploaded_video_${videoFile.name}`);
+      if (mediaFile) {
+        // Changed from videoFile to mediaFile
+        requestFiles.push(`uploaded_media_${mediaFile.name}`);
       }
-      // If you had an audio file input:
-      // if (audioFile) {
-      //   requestFiles.push(`uploaded_audio_${audioFile.name}`);
-      // }
 
       let apiEditType: UserVideoAudioEditRequest["edit_type"];
       switch (data.editType) {
@@ -57,11 +58,10 @@ const VideoEditingForm: React.FC = () => {
           apiEditType = "video_audio_editing";
           break;
         default:
-          apiEditType = "other"; // Or a sensible default/error
+          apiEditType = "other";
           break;
       }
 
-      // Convert dueDate to ISO 8601 format
       const desireDeliveryDate = data.dueDate
         ? new Date(data.dueDate).toISOString()
         : "";
@@ -77,37 +77,44 @@ const VideoEditingForm: React.FC = () => {
 
       console.log("API Request Body:", apiRequestBody);
 
-      // Send the POST request using the userApiClient
       await userApiClient.userVideoAndAudioRequests(apiRequestBody);
 
-      setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 3000);
-      setShowError(false);
+      // Show success toast
+      toast.success("依頼が正常に送信されました！");
     } catch (error) {
       console.error("Failed to submit video/audio edit request:", error);
-      setShowError(true);
-      setShowSuccess(false);
-      setTimeout(() => setShowError(false), 5000);
+      // Show error toast
+      toast.error("依頼の送信に失敗しました。もう一度お試しください。");
     }
   };
 
-  const handleVideoUpload = (files: FileList | null) => {
+  const handleMediaUpload = (files: FileList | null) => {
     if (files && files.length > 0) {
       const file = files[0];
-      setVideoFile(file);
+      setMediaFile(file);
       setValue("video", files);
       clearErrors("video");
+
+      if (file.type.startsWith("video/")) {
+        setMediaType("video");
+      } else if (file.type.startsWith("audio/")) {
+        setMediaType("audio");
+      } else {
+        setMediaType(null);
+      }
+
       const url = URL.createObjectURL(file);
-      setVideoPreview(url);
+      setMediaPreview(url);
     }
   };
 
-  const removeVideo = () => {
+  const removeMedia = () => {
     setValue("video", undefined);
-    setVideoFile(null);
-    if (videoPreview) {
-      URL.revokeObjectURL(videoPreview);
-      setVideoPreview(null);
+    setMediaFile(null);
+    setMediaType(null);
+    if (mediaPreview) {
+      URL.revokeObjectURL(mediaPreview);
+      setMediaPreview(null);
     }
   };
 
@@ -116,70 +123,63 @@ const VideoEditingForm: React.FC = () => {
       <Menu text="アリバイ動画音声の依頼" position="left" className="pl-10" />
       <div className="main-gradient-bg min-h-screen p-4">
         <div className="max-w-5xl mx-auto">
-          {/* Success Notification */}
-          {showSuccess && (
-            <div className="glass-card success-notification p-4 mb-6 text-center">
-              <p className="font-medium">依頼が正常に送信されました！</p>
-            </div>
-          )}
-
-          {/* Error Notification */}
-          {showError && (
-            <div className="glass-card error-notification p-4 mb-6 text-center">
-              <p className="font-medium">
-                依頼の送信に失敗しました。もう一度お試しください。
-              </p>
-            </div>
-          )}
-
           {/* Main Form */}
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="glass-card p-8">
-              {/* Video Upload Section */}
+              {/* Media Upload Section */}
               <div className="mb-8">
                 <h2 className="text-lg font-semibold mb-2 text-white">
-                  動画のアップロード
+                  メディアのアップロード
                 </h2>
                 <p className="text-sm text-gray-300 mb-4">
-                  編集したい動画ファイルをアップロードしてください
+                  編集したい動画または音声ファイルをアップロードしてください
                 </p>
 
                 <div
                   className={`video-upload-area h-64 flex items-center justify-center relative overflow-hidden rounded-lg ${
-                    videoPreview ? "has-video" : ""
+                    mediaPreview ? "has-video" : ""
                   }`}
                 >
                   <input
                     type="file"
-                    accept="video/*"
+                    accept="video/*,audio/*"
                     className="hidden"
-                    onChange={(e) => handleVideoUpload(e.target.files)}
-                    id="video-upload"
+                    onChange={(e) => handleMediaUpload(e.target.files)}
+                    id="media-upload"
                   />
 
-                  {videoPreview ? (
+                  {mediaPreview ? (
                     <>
-                      <video
-                        src={videoPreview}
-                        className="video-preview object-cover rounded-lg w-full h-full"
-                        controls
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          padding: "10px",
-                        }}
-                      />
+                      {mediaType === "video" && (
+                        <video
+                          src={mediaPreview}
+                          className="media-preview object-cover rounded-lg w-full h-full"
+                          controls
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            padding: "10px",
+                          }}
+                        />
+                      )}
+                      {mediaType === "audio" && (
+                        <audio
+                          src={mediaPreview}
+                          className="media-preview w-full h-24 p-2"
+                          controls
+                        />
+                      )}
                       <div className="upload-overlay">
                         <div className="flex flex-col items-center gap-2">
                           <label
-                            htmlFor="video-upload"
+                            htmlFor="media-upload"
                             className="change-video-text cursor-pointer bg-black bg-opacity-70 px-3 py-2 rounded text-white text-sm"
                           >
-                            動画を変更
+                            メディアを変更
                           </label>
                           <button
                             type="button"
-                            onClick={removeVideo}
+                            onClick={removeMedia}
                             className="text-red-400 text-sm hover:text-red-300 bg-black bg-opacity-70 px-3 py-2 rounded"
                           >
                             削除
@@ -189,16 +189,16 @@ const VideoEditingForm: React.FC = () => {
                     </>
                   ) : (
                     <label
-                      htmlFor="video-upload"
+                      htmlFor="media-upload"
                       className="cursor-pointer text-center w-full h-full flex items-center justify-center"
                     >
                       <div className="text-gray-300">
                         <div className="mb-4 text-4xl">🎬</div>
                         <div className="text-lg mb-2">
-                          クリックして動画を選択
+                          クリックしてメディアを選択
                         </div>
                         <div className="text-sm opacity-70">
-                          MP4, MOV, AVI対応
+                          動画: MP4, MOV, AVI | 音声: MP3, WAV
                         </div>
                       </div>
                     </label>
@@ -296,6 +296,7 @@ const VideoEditingForm: React.FC = () => {
           </form>
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 };
