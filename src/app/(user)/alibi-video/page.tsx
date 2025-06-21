@@ -33,13 +33,11 @@ const VideoEditingForm: React.FC = () => {
   });
 
   const onSubmit = async (data: VideoEditingFormData) => {
-    // console.log("Form submitted:", data);
     // console.log({ mediaFile }); // Changed from videoFile to mediaFile
 
     try {
       const requestFiles: string[] = [];
       if (mediaFile) {
-        // Changed from videoFile to mediaFile
         requestFiles.push(`uploaded_media_${mediaFile.name}`);
       }
 
