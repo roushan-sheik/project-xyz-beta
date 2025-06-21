@@ -2,6 +2,8 @@ import {
   LoginResponse,
   UserPhotoEditRequest,
   UserPhotoEditRequestResponse,
+  UserVideoAudioEditRequest, // NEW: Import new type
+  UserVideoAudioEditRequestResponse, // NEW: Import new type
 } from "./utils/types";
 import { baseUrl } from "@/constants/baseApi";
 
@@ -65,6 +67,34 @@ class UserAPIClient {
       return data;
     } catch (error) {
       console.error("Photo request fetch error:", error);
+      throw error;
+    }
+  }
+
+  public async userVideoAndAudioRequests(
+    bodyData: UserVideoAudioEditRequest
+  ): Promise<UserVideoAudioEditRequestResponse> {
+    try {
+      const response = await fetch(
+        `${this.apiUrl}/gallery/video-audio-edit-requests`, // Assuming this is the correct endpoint
+        {
+          method: "POST",
+          headers: this.getHeaders(),
+          body: JSON.stringify(bodyData),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.detail || `Failed to video/audio edit request`
+        );
+      }
+
+      const data: UserVideoAudioEditRequestResponse = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Video/audio request fetch error:", error);
       throw error;
     }
   }

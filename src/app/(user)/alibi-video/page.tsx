@@ -7,13 +7,16 @@ import Button from "@/components/ui/Button";
 import Menu from "@/components/home/Menu";
 import { z } from "zod";
 import videoEditingSchema from "@/schemas/videoEdit";
+import { userApiClient } from "@/infrastructure/user/userAPIClient"; // Import your API client
+import { UserVideoAudioEditRequest } from "@/infrastructure/user/utils/types"; // Import the request type
 
 type VideoEditingFormData = z.infer<typeof videoEditingSchema>;
 
 const VideoEditingForm: React.FC = () => {
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showError, setShowError] = useState(false); // State for error notification
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
-  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [videoFile, setVideoFile] = useState<File | null>(null); // Keep track of the actual File object
 
   const {
     register,
@@ -24,15 +27,68 @@ const VideoEditingForm: React.FC = () => {
   } = useForm<VideoEditingFormData>({
     resolver: zodResolver(videoEditingSchema),
     defaultValues: {
-      editType: "動画編集", // Set a default value
+      editType: "動画編集",
     },
   });
 
-  const onSubmit = (data: VideoEditingFormData) => {
+  const onSubmit = async (data: VideoEditingFormData) => {
     console.log("Form submitted:", data);
     console.log({ videoFile });
-    setShowSuccess(true);
-    setTimeout(() => setShowSuccess(false), 3000);
+
+    try {
+      const requestFiles: string[] = [];
+      if (videoFile) {
+        requestFiles.push(`uploaded_video_${videoFile.name}`);
+      }
+      // If you had an audio file input:
+      // if (audioFile) {
+      //   requestFiles.push(`uploaded_audio_${audioFile.name}`);
+      // }
+
+      let apiEditType: UserVideoAudioEditRequest["edit_type"];
+      switch (data.editType) {
+        case "動画編集":
+          apiEditType = "video_editing";
+          break;
+        case "音声編集":
+          apiEditType = "audio_editing";
+          break;
+        case "動画・音声編集":
+          apiEditType = "video_audio_editing";
+          break;
+        default:
+          apiEditType = "other"; // Or a sensible default/error
+          break;
+      }
+
+      // Convert dueDate to ISO 8601 format
+      const desireDeliveryDate = data.dueDate
+        ? new Date(data.dueDate).toISOString()
+        : "";
+
+      const apiRequestBody: UserVideoAudioEditRequest = {
+        title: data.title,
+        description: data.description,
+        special_note: data.additionalNotes || "",
+        desire_delivery_date: desireDeliveryDate,
+        edit_type: apiEditType,
+        request_files: requestFiles,
+      };
+
+      console.log("API Request Body:", apiRequestBody);
+
+      // Send the POST request using the userApiClient
+      await userApiClient.userVideoAndAudioRequests(apiRequestBody);
+
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 3000);
+      setShowError(false);
+    } catch (error) {
+      console.error("Failed to submit video/audio edit request:", error);
+      setShowError(true);
+      setShowSuccess(false);
+      setTimeout(() => setShowError(false), 5000);
+    }
   };
 
   const handleVideoUpload = (files: FileList | null) => {
@@ -41,8 +97,6 @@ const VideoEditingForm: React.FC = () => {
       setVideoFile(file);
       setValue("video", files);
       clearErrors("video");
-
-      // Create video preview
       const url = URL.createObjectURL(file);
       setVideoPreview(url);
     }
@@ -66,6 +120,15 @@ const VideoEditingForm: React.FC = () => {
           {showSuccess && (
             <div className="glass-card success-notification p-4 mb-6 text-center">
               <p className="font-medium">依頼が正常に送信されました！</p>
+            </div>
+          )}
+
+          {/* Error Notification */}
+          {showError && (
+            <div className="glass-card error-notification p-4 mb-6 text-center">
+              <p className="font-medium">
+                依頼の送信に失敗しました。もう一度お試しください。
+              </p>
             </div>
           )}
 
