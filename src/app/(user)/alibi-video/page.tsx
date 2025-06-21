@@ -123,7 +123,6 @@ const VideoEditingForm: React.FC = () => {
           {/* Main Form */}
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="glass-card p-8">
-              {/* Media Upload Section */}
               <div className="mb-8">
                 <h2 className="text-lg font-semibold mb-2 text-white">
                   メディアのアップロード
@@ -208,7 +207,6 @@ const VideoEditingForm: React.FC = () => {
                 )}
               </div>
 
-              {/* Title */}
               <div className="mb-6">
                 <label className="block text-sm font-medium mb-2 text-white">
                   タイトル
