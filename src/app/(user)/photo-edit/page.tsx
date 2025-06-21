@@ -9,13 +9,13 @@ import Menu from "@/components/home/Menu";
 import photoEditingSchema from "@/schemas/photoEdit";
 import { z } from "zod";
 import { userApiClient } from "@/infrastructure/user/userAPIClient";
-import { UserPhotoEditRequest } from "@/infrastructure/user/utils/types"; // Import the type for the API request body
+import { UserPhotoEditRequest } from "@/infrastructure/user/utils/types";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 type PhotoEditingFormData = z.infer<typeof photoEditingSchema>;
 
 export default function PhotoEditingPage() {
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [showError, setShowError] = useState(false); // State for error notification
   const [imagePreviews, setImagePreviews] = useState<{
     image1?: string;
     image2?: string;
@@ -31,7 +31,7 @@ export default function PhotoEditingPage() {
   } = useForm<PhotoEditingFormData>({
     resolver: zodResolver(photoEditingSchema),
     defaultValues: {
-      template: "default", // Set a default value
+      template: "default",
     },
   });
 
@@ -50,32 +50,27 @@ export default function PhotoEditingPage() {
         requestFiles.push(`file_${data.images.image3[0].name}`);
       }
 
-      // Convert completionDate to ISO 8601 format (e.g., "YYYY-MM-DDTHH:mm:ss.sssZ")
-      // We're taking the date from the form and converting it to the start of that day in UTC.
       const desireDeliveryDate = data.completionDate
         ? new Date(data.completionDate).toISOString()
         : "";
 
       const apiRequestBody: UserPhotoEditRequest = {
         description: data.processingContent,
-        special_note: data.referenceInfo || "", // referenceInfo is optional
-        desire_delivery_date: data.completionDate,
+        special_note: data.referenceInfo || "",
+        desire_delivery_date: desireDeliveryDate,
         request_files: requestFiles,
       };
 
       console.log("API Request Body:", apiRequestBody);
 
-      // Send the POST request using the userApiClient
       await userApiClient.userPhotoEditRequests(apiRequestBody);
 
-      setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 3000);
-      setShowError(false); // Clear any previous error
+      // Show success toast
+      toast.success("依頼が正常に送信されました！");
     } catch (error) {
       console.error("Failed to submit photo edit request:", error);
-      setShowError(true); // Show error notification
-      setShowSuccess(false); // Hide success notification if it was showing
-      setTimeout(() => setShowError(false), 5000); // Hide error after 5 seconds
+      // Show error toast
+      toast.error("依頼の送信に失敗しました。もう一度お試しください。");
     }
   };
 
@@ -133,19 +128,7 @@ export default function PhotoEditingPage() {
             </div>
           </div>
 
-          {showSuccess && (
-            <div className="glass-card success-notification p-4 mb-6 text-center">
-              <p className="font-medium">依頼が正常に送信されました！</p>
-            </div>
-          )}
-
-          {showError && (
-            <div className="glass-card error-notification p-4 mb-6 text-center">
-              <p className="font-medium">
-                依頼の送信に失敗しました。もう一度お試しください。
-              </p>
-            </div>
-          )}
+          {/* Removed custom success and error notification divs */}
 
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="glass-card p-8">
@@ -279,6 +262,7 @@ export default function PhotoEditingPage() {
           </form>
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 }

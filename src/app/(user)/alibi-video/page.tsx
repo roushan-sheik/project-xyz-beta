@@ -9,15 +9,12 @@ import { z } from "zod";
 import videoEditingSchema from "@/schemas/videoEdit";
 import { userApiClient } from "@/infrastructure/user/userAPIClient";
 import { UserVideoAudioEditRequest } from "@/infrastructure/user/utils/types";
-
-// Import react-toastify components and styles
 import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css"; // Don't forget to import the CSS!
+import "react-toastify/dist/ReactToastify.css";
 
 type VideoEditingFormData = z.infer<typeof videoEditingSchema>;
 
 const VideoEditingForm: React.FC = () => {
-  // Removed showSuccess and showError states as react-toastify will handle them
   const [mediaPreview, setMediaPreview] = useState<string | null>(null);
   const [mediaFile, setMediaFile] = useState<File | null>(null);
   const [mediaType, setMediaType] = useState<"video" | "audio" | null>(null);
