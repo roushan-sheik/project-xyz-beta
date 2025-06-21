@@ -1,4 +1,8 @@
-import { LoginResponse, UserPhotoEditRequestResponse } from "./utils/types";
+import {
+  LoginResponse,
+  UserPhotoEditRequest,
+  UserPhotoEditRequestResponse,
+} from "./utils/types";
 import { baseUrl } from "@/constants/baseApi";
 
 export interface LoginRequest {
@@ -39,16 +43,22 @@ class UserAPIClient {
     }
   }
 
-  public async userPhotoEditRequests(): Promise<UserPhotoEditRequestResponse> {
+  public async userPhotoEditRequests(
+    bodyData: UserPhotoEditRequest
+  ): Promise<UserPhotoEditRequestResponse> {
     try {
-      const response = await fetch(`${this.apiUrl}/photo-edit-request`, {
-        method: "GET",
-        headers: this.getHeaders(), // ✅ uses token automatically
-      });
+      const response = await fetch(
+        `${this.apiUrl}/gallery/photo-edit-requests`,
+        {
+          method: "POST",
+          headers: this.getHeaders(),
+          body: JSON.stringify(bodyData),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || `Failed to fetch request`);
+        throw new Error(errorData.detail || `Failed to photo edit request`);
       }
 
       const data: UserPhotoEditRequestResponse = await response.json();

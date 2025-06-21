@@ -13,6 +13,13 @@ export type RegisterResponse = {
 
 export type AuthResponse = LoginResponse | RegisterResponse;
 
+export type UserPhotoEditRequest = {
+  description: string;
+  special_note: string;
+  desire_delivery_date: string;
+  request_files: string[];
+};
+
 export type UserPhotoEditRequestResponse = {
   uid: string; // UUID format
   description: string;
