@@ -8,11 +8,14 @@ import Button from "@/components/ui/Button";
 import Menu from "@/components/home/Menu";
 import photoEditingSchema from "@/schemas/photoEdit";
 import { z } from "zod";
+import { userApiClient } from "@/infrastructure/user/userAPIClient";
+import { UserPhotoEditRequest } from "@/infrastructure/user/utils/types";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 type PhotoEditingFormData = z.infer<typeof photoEditingSchema>;
 
 export default function PhotoEditingPage() {
-  const [showSuccess, setShowSuccess] = useState(false);
   const [imagePreviews, setImagePreviews] = useState<{
     image1?: string;
     image2?: string;
@@ -28,14 +31,47 @@ export default function PhotoEditingPage() {
   } = useForm<PhotoEditingFormData>({
     resolver: zodResolver(photoEditingSchema),
     defaultValues: {
-      template: "default", // Set a default value
+      template: "default",
     },
   });
 
-  const onSubmit = (data: PhotoEditingFormData) => {
+  const onSubmit = async (data: PhotoEditingFormData) => {
     console.log("Form submitted:", data);
-    setShowSuccess(true);
-    setTimeout(() => setShowSuccess(false), 3000);
+
+    try {
+      const requestFiles: string[] = [];
+      if (data.images?.image1 && data.images.image1.length > 0) {
+        requestFiles.push(`file_${data.images.image1[0].name}`);
+      }
+      if (data.images?.image2 && data.images.image2.length > 0) {
+        requestFiles.push(`file_${data.images.image2[0].name}`);
+      }
+      if (data.images?.image3 && data.images.image3.length > 0) {
+        requestFiles.push(`file_${data.images.image3[0].name}`);
+      }
+
+      const desireDeliveryDate = data.completionDate
+        ? new Date(data.completionDate).toISOString()
+        : "";
+
+      const apiRequestBody: UserPhotoEditRequest = {
+        description: data.processingContent,
+        special_note: data.referenceInfo || "",
+        desire_delivery_date: desireDeliveryDate,
+        request_files: requestFiles,
+      };
+
+      console.log("API Request Body:", apiRequestBody);
+
+      await userApiClient.userPhotoEditRequests(apiRequestBody);
+
+      // Show success toast
+      toast.success("依頼が正常に送信されました！");
+    } catch (error) {
+      console.error("Failed to submit photo edit request:", error);
+      // Show error toast
+      toast.error("依頼の送信に失敗しました。もう一度お試しください。");
+    }
   };
 
   const handleImageUpload = (
@@ -45,10 +81,8 @@ export default function PhotoEditingPage() {
     if (files && files.length > 0) {
       const file = files[0];
       setValue(`images.${imageKey}`, files);
-      // Clear any existing error for this field
       clearErrors(`images.${imageKey}`);
 
-      // Create image preview
       const reader = new FileReader();
       reader.onload = (e) => {
         setImagePreviews((prev) => ({
@@ -68,7 +102,6 @@ export default function PhotoEditingPage() {
     }));
   };
 
-  // Helper function to get error message safely
   const getImageErrorMessage = (
     imageKey: "image1" | "image2" | "image3"
   ): string | undefined => {
@@ -82,9 +115,8 @@ export default function PhotoEditingPage() {
   return (
     <div className="main_gradient_bg">
       <Menu text="アリバイ写真加工" position="left" className="pl-10" />
-      <div className="main-gradient-bg  min-h-screen p-4">
+      <div className="main-gradient-bg min-h-screen p-4">
         <div className="max-w-4xl mx-auto">
-          {/* Header */}
           <div className="text-center mb-8">
             <div className="flex justify-center gap-4 mb-6">
               <Button variant="glassSec" className="w-full">
@@ -96,17 +128,10 @@ export default function PhotoEditingPage() {
             </div>
           </div>
 
-          {/* Success Notification */}
-          {showSuccess && (
-            <div className="glass-card success-notification p-4 mb-6 text-center">
-              <p className="font-medium">依頼が正常に送信されました！</p>
-            </div>
-          )}
+          {/* Removed custom success and error notification divs */}
 
-          {/* Main Form */}
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="glass-card p-8">
-              {/* Image Upload Section */}
               <div className="mb-8">
                 <h2 className="text-xl font-semibold mb-4">画像アップロード</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -187,7 +212,6 @@ export default function PhotoEditingPage() {
                 </div>
               </div>
 
-              {/* Processing Content */}
               <div className="mb-6">
                 <label className="block text-sm font-medium mb-2">
                   加工したい内容 *
@@ -204,7 +228,6 @@ export default function PhotoEditingPage() {
                 )}
               </div>
 
-              {/* Reference Information */}
               <div className="mb-6">
                 <label className="block text-sm font-medium mb-2">
                   引継ぎ事項
@@ -216,7 +239,6 @@ export default function PhotoEditingPage() {
                 />
               </div>
 
-              {/* Completion Date */}
               <div className="mb-8">
                 <label className="block text-sm font-medium mb-2">
                   納品希望日 *
@@ -233,7 +255,6 @@ export default function PhotoEditingPage() {
                 )}
               </div>
 
-              {/* Submit Button */}
               <Button type="submit" variant="glassBrand" className="w-full">
                 依頼を送信
               </Button>
@@ -241,6 +262,7 @@ export default function PhotoEditingPage() {
           </form>
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 }

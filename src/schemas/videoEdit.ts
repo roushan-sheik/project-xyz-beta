@@ -7,15 +7,18 @@ const videoEditingSchema = z.object({
           .custom<FileList>((val) => val instanceof FileList)
           .refine(
             (files) => files?.length > 0,
-            "動画ファイルを選択してください"
+            "メディアファイルを選択してください"
           )
           .refine((files) => {
             if (files?.length > 0) {
               const file = files[0];
-              return file.type.startsWith("video/");
+              // Allow both video and audio file types
+              return (
+                file.type.startsWith("video/") || file.type.startsWith("audio/")
+              );
             }
             return false;
-          }, "有効な動画ファイルを選択してください")
+          }, "有効なメディアファイル（動画または音声）を選択してください")
           .refine((files) => {
             if (files?.length > 0) {
               const file = files[0];

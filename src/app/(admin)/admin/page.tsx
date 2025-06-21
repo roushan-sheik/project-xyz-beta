@@ -1,4 +1,5 @@
 import DashboardCard from "@/components/admin/DashboardCard";
+import LogoutButton from "@/components/logout/Logout";
 import { dashboardCards } from "@/constants/admin";
 
 export default function DashboardPage() {

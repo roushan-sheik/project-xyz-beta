@@ -5,14 +5,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Menu from "@/components/home/Menu";
 import Button from "@/components/ui/Button";
-import {
-  LoginRequest,
-  userApiClient,
-} from "@/infrastructure/user/userAPIClient";
+import { userApiClient } from "@/infrastructure/user/userAPIClient";
 import Cookies from "js-cookie";
 import { LoginResponse } from "@/infrastructure/user/utils/types";
 import { ToastContainer, toast } from "react-toastify";
-import delay from "@/utils/function/delay";
+import { user_role } from "@/constants/role";
 
 // Zod validation schema
 const loginSchema = z.object({
@@ -55,6 +52,10 @@ const LoginPage = () => {
           expires: 30,
           secure: process.env.NODE_ENV === "production",
         });
+        Cookies.set("role", response.user.kind, {
+          expires: 7,
+          secure: process.env.NODE_ENV === "production",
+        });
 
         // Also set in localStorage
         localStorage.setItem("accessToken", response.access);
@@ -62,15 +63,18 @@ const LoginPage = () => {
 
       toast("Login Successfully", {
         ariaLabel: "something",
+        position: "top-center",
       });
 
       // Optional delay (should be `await`)
       await new Promise((resolve) => setTimeout(resolve, 800));
 
-      // Redirect after success
-      if (response.user.kind === "SUPER_ADMIN") {
+      // Redirect after success and set user role
+      if (response.user.kind === user_role.SUPER_ADMIN) {
+        localStorage.setItem("role", user_role.SUPER_ADMIN);
         window.location.href = "/admin";
       } else {
+        localStorage.setItem("role", user_role.USER);
         window.location.href = "/";
       }
     } catch (error) {
@@ -82,9 +86,9 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen main_gradient_bg text-white">
-      <Menu text="ログイン" />
-      <main className="flex min-h-screen items-center justify-center px-4">
+      <main className="flex min-h-screen flex-col items-center justify-center px-4">
         <ToastContainer />
+        <h2 className="text-white lg:text-3xl text-2xl mb-6">ログイン</h2>
         <div className="w-full max-w-md">
           <div className="space-y-6">
             <div className="rounded-lg border glass-card p-6 space-y-4">
@@ -96,7 +100,7 @@ const LoginPage = () => {
                   type="email"
                   {...register("email")}
                   className={"glass-input  w-full p-3"}
-                  placeholder="your@email.com"
+                  placeholder="email"
                 />
                 {errors.email && (
                   <p className="mt-1 text-sm text-red-400">
@@ -113,7 +117,7 @@ const LoginPage = () => {
                   type="password"
                   {...register("password")}
                   className={"glass-input  w-full p-3"}
-                  placeholder="••••••••"
+                  placeholder="password"
                 />
                 {errors.password && (
                   <p className="mt-1 text-sm text-red-400">

@@ -10,6 +10,7 @@ const AlibiPhotos = () => {
   const handleProductSelect = (productId: string) => {
     setSelectedProduct(productId);
   };
+
   return (
     <div className="main_gradient_bg">
       <Menu text="アリバイ写真ギャラリー" position="left" className="pl-10" />

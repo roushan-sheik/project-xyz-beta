@@ -1,10 +1,10 @@
 "use client";
-
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import DynamicLucidIcon from "./DynamicLucidIcon";
 import { NavItem } from "@/types/admin/types";
 import { LayoutDashboard } from "lucide-react";
+import LogoutButton from "../logout/Logout";
 
 interface SidebarProps {
   navItems: NavItem[];
@@ -72,6 +72,10 @@ const Sidebar: React.FC<SidebarProps> = ({ navItems, isOpen, onClose }) => {
               </li>
             ))}
           </ul>
+          <div className="mt-8"></div>
+          <LogoutButton variant="dark" className="w-full">
+            Logout
+          </LogoutButton>
         </nav>
       </aside>
     </>

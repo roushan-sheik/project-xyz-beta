@@ -1,4 +1,5 @@
 import delay from "@/utils/function/delay";
+import { baseUrl } from "@/constants/baseApi";
 
 import { AdminUsersResponse } from "./utils/types";
 
@@ -7,7 +8,7 @@ class AdminAPIClient {
     "Content-Type": "application/json",
     Accept: "application/json",
   };
-  private readonly apiUrl = "http://localhost:3000";
+  private readonly apiUrl = baseUrl;
 
   public async getAdminUsers(): Promise<AdminUsersResponse> {
     await delay(1000);

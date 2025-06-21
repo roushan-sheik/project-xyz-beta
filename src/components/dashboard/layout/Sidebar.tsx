@@ -4,7 +4,6 @@ import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import * as Icons from "lucide-react";
-// import { useAuth } from "@/context/AuthContext";
 import { MENU_ITEMS } from "@/constants/dashboard/constants";
 import Image from "next/image";
 

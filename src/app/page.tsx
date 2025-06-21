@@ -1,7 +1,7 @@
 "use client";
 
 import SectionContainer from "@/shared/SectionContainer";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { menuItems } from "@/constants/home/home";
 import { MenuItem } from "@/types/home/types";
 import Cart from "@/components/ui/Cart";
@@ -9,23 +9,22 @@ import { useUser } from "@/context/AuthContext";
 import Link from "next/link";
 import Menu from "@/components/home/Menu";
 import { useRouter } from "next/navigation";
+import Loading from "@/components/loading/Loading";
 
 const MainComponent = () => {
   const { user, isLoading } = useUser();
+  console.log({ user });
   const router = useRouter();
 
   useEffect(() => {
     if (!isLoading && !user) {
-      router.push("/login");
+      router.replace("/login");
     }
-  }, [user, isLoading, router]);
+  }, [user, isLoading]);
 
-  if (isLoading) {
-    return (
-      <div className="main_gradient_bg min-h-screen flex items-center justify-center">
-        <h2 className="text-white text-heading2">読み込み中...</h2>
-      </div>
-    );
+  // Block UI from rendering until we are sure
+  if (isLoading || (!user && typeof window !== "undefined")) {
+    return <Loading />;
   }
 
   return (
