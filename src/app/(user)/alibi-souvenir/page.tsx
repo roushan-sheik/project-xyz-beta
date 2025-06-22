@@ -2,6 +2,7 @@
 "use client";
 import OrderForm from "@/components/form/OrderForm";
 import Menu from "@/components/home/Menu";
+import ProductSevinior from "@/components/product/ProductSevinior";
 import ProductCard from "@/components/ui/ProductCard";
 import { products } from "@/constants/products";
 import React, { useState } from "react";
@@ -32,7 +33,7 @@ const EcommercePage: React.FC = () => {
             <h1 className="text-white text-2xl font-bold mb-6">商品を選択</h1>
             <div className="grid md:grid-cols-2 gap-6">
               {products.map((product) => (
-                <ProductCard
+                <ProductSevinior
                   key={product.id}
                   id={product.id}
                   title={product.title}
