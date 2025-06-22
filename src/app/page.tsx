@@ -7,9 +7,9 @@ import { MenuItem } from "@/types/home/types";
 import Cart from "@/components/ui/Cart";
 import { useUser } from "@/context/AuthContext";
 import Link from "next/link";
-import Menu from "@/components/home/Menu";
 import { useRouter } from "next/navigation";
 import Loading from "@/components/loading/Loading";
+import MenuProfile from "@/components/user/MenuProfile";
 
 const MainComponent = () => {
   const { user, isLoading } = useUser();
@@ -29,7 +29,8 @@ const MainComponent = () => {
 
   return (
     <div className="main_gradient_bg">
-      <Menu text="Menu" />
+      {/* Menu profile  */}
+      <MenuProfile />
       <SectionContainer>
         <div className="py-12 md:py-16 lg:py-20">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-4 w-full mx-auto">

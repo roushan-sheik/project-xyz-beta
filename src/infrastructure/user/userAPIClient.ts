@@ -1,3 +1,4 @@
+import { GalleryResponse } from "../gallery/utils/types";
 import {
   LoginResponse,
   UserPhotoEditRequest,
@@ -46,15 +47,20 @@ class UserAPIClient {
   }
 
   public async userPhotoEditRequests(
-    bodyData: UserPhotoEditRequest
+    formData: FormData
   ): Promise<UserPhotoEditRequestResponse> {
     try {
       const response = await fetch(
         `${this.apiUrl}/gallery/photo-edit-requests`,
         {
           method: "POST",
-          headers: this.getHeaders(),
-          body: JSON.stringify(bodyData),
+          headers: {
+            Accept: "application/json",
+            ...(localStorage.getItem("accessToken") && {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            }),
+          },
+          body: formData,
         }
       );
 
@@ -63,8 +69,7 @@ class UserAPIClient {
         throw new Error(errorData.detail || `Failed to photo edit request`);
       }
 
-      const data: UserPhotoEditRequestResponse = await response.json();
-      return data;
+      return await response.json();
     } catch (error) {
       console.error("Photo request fetch error:", error);
       throw error;
@@ -95,6 +100,25 @@ class UserAPIClient {
       return data;
     } catch (error) {
       console.error("Video/audio request fetch error:", error);
+      throw error;
+    }
+  }
+  public async getGalleryPhotos(): Promise<GalleryResponse> {
+    try {
+      const response = await fetch(`${this.apiUrl}/gallery`, {
+        method: "GET",
+        headers: this.getHeaders(), // Assumes Authorization or other headers are set here
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Failed to fetch gallery data");
+      }
+
+      const data: GalleryResponse = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Gallery fetch error:", error);
       throw error;
     }
   }

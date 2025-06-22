@@ -10,14 +10,30 @@ const nextConfig: NextConfig = {
     ];
   },
   images: {
-    domains: ["images.unsplash.com"],
-    // Or use remotePatterns for more control (recommended):
     remotePatterns: [
+      {
+        protocol: "http",
+        hostname: "15.206.185.80",
+        port: "",
+        pathname: "/media/gallery/**",
+      },
       {
         protocol: "https",
         hostname: "images.unsplash.com",
         port: "",
         pathname: "/photo-*",
+      },
+      {
+        protocol: "https",
+        hostname: "img.freepik.com",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "static.vecteezy.com",
+        port: "",
+        pathname: "/**",
       },
     ],
   },
