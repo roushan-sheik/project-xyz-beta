@@ -36,40 +36,31 @@ export default function PhotoEditingPage() {
   });
 
   const onSubmit = async (data: PhotoEditingFormData) => {
-    console.log("Form submitted:", data);
-
     try {
-      const requestFiles: string[] = [];
-      if (data.images?.image1 && data.images.image1.length > 0) {
-        requestFiles.push(`file_${data.images.image1[0].name}`);
+      const formData = new FormData();
+
+      formData.append("description", data.processingContent);
+      formData.append("special_note", data.referenceInfo || "");
+      formData.append(
+        "desire_delivery_date",
+        data.completionDate ? new Date(data.completionDate).toISOString() : ""
+      );
+
+      if (data.images?.image1?.[0]) {
+        formData.append("request_files", data.images.image1[0]);
       }
-      if (data.images?.image2 && data.images.image2.length > 0) {
-        requestFiles.push(`file_${data.images.image2[0].name}`);
+      if (data.images?.image2?.[0]) {
+        formData.append("request_files", data.images.image2[0]);
       }
-      if (data.images?.image3 && data.images.image3.length > 0) {
-        requestFiles.push(`file_${data.images.image3[0].name}`);
+      if (data.images?.image3?.[0]) {
+        formData.append("request_files", data.images.image3[0]);
       }
 
-      const desireDeliveryDate = data.completionDate
-        ? new Date(data.completionDate).toISOString()
-        : "";
+      await userApiClient.userPhotoEditRequests(formData);
 
-      const apiRequestBody: UserPhotoEditRequest = {
-        description: data.processingContent,
-        special_note: data.referenceInfo || "",
-        desire_delivery_date: desireDeliveryDate,
-        request_files: requestFiles,
-      };
-
-      console.log("API Request Body:", apiRequestBody);
-
-      await userApiClient.userPhotoEditRequests(apiRequestBody);
-
-      // Show success toast
       toast.success("依頼が正常に送信されました！");
     } catch (error) {
       console.error("Failed to submit photo edit request:", error);
-      // Show error toast
       toast.error("依頼の送信に失敗しました。もう一度お試しください。");
     }
   };
