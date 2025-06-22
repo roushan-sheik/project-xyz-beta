@@ -1,3 +1,4 @@
+import { GalleryResponse } from "../gallery/utils/types";
 import {
   LoginResponse,
   UserPhotoEditRequest,
@@ -99,6 +100,25 @@ class UserAPIClient {
       return data;
     } catch (error) {
       console.error("Video/audio request fetch error:", error);
+      throw error;
+    }
+  }
+  public async getGalleryPhotos(): Promise<GalleryResponse> {
+    try {
+      const response = await fetch(`${this.apiUrl}/gallery`, {
+        method: "GET",
+        headers: this.getHeaders(), // Assumes Authorization or other headers are set here
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Failed to fetch gallery data");
+      }
+
+      const data: GalleryResponse = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Gallery fetch error:", error);
       throw error;
     }
   }

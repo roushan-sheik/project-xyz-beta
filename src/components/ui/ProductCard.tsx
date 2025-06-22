@@ -4,8 +4,8 @@ import Image from "next/image";
 interface ProductCardProps {
   id: string;
   title: string;
-  price: number;
-  image: string;
+  file: string;
+  file_type: string;
   selected: boolean;
   onSelect: (id: string) => void;
 }
@@ -13,8 +13,8 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({
   id,
   title,
-  price,
-  image,
+  file,
+  file_type,
   selected,
   onSelect,
 }) => {
@@ -26,16 +26,22 @@ const ProductCard: React.FC<ProductCardProps> = ({
       onClick={() => onSelect(id)}
     >
       <div className="aspect-square mb-4 rounded-lg overflow-hidden bg-gray-800/30">
-        <Image
-          src={image}
-          alt={title}
-          width={200}
-          height={200}
-          className="w-full h-full object-cover"
-        />
+        {file_type === "image" ? (
+          <Image
+            src={file}
+            alt={title}
+            width={200}
+            height={200}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <video controls className="w-full h-full object-cover">
+            <source src={file} />
+            Your browser does not support video.
+          </video>
+        )}
       </div>
       <h3 className="text-white font-medium mb-2 text-sm">{title}</h3>
-      <p className="text-gray-300 text-sm">¥{price.toLocaleString()}</p>
     </div>
   );
 };

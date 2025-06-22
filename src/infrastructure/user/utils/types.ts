@@ -50,3 +50,20 @@ export interface UserVideoAudioEditRequestResponse {
   request_status: string;
   desire_delivery_date: string; // ISO 8601 string
 }
+
+// types for gallery=======================
+export interface GalleryItem {
+  uid: string;
+  title: string;
+  code: string;
+  description: string;
+  file_type: string; // "image", "video", etc.
+  file: string;
+}
+
+export interface GalleryResponse {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: GalleryItem[];
+}
