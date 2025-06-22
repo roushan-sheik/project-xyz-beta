@@ -18,6 +18,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
   selected,
   onSelect,
 }) => {
+  const getProxiedUrl = (url: string) =>
+    `/api/image-proxy?url=${encodeURIComponent(url)}`;
+
   return (
     <div
       className={`glass-card p-4 cursor-pointer transition-all duration-300 hover:scale-105 ${
@@ -28,7 +31,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       <div className="aspect-square mb-4 rounded-lg overflow-hidden bg-gray-800/30">
         {file_type === "image" ? (
           <Image
-            src={file}
+            src={getProxiedUrl(file)}
             alt={title}
             width={200}
             height={200}
