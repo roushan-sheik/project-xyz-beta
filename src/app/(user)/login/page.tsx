@@ -3,13 +3,14 @@ import React, { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import Menu from "@/components/home/Menu";
 import Button from "@/components/ui/Button";
 import { userApiClient } from "@/infrastructure/user/userAPIClient";
 import Cookies from "js-cookie";
 import { LoginResponse } from "@/infrastructure/user/utils/types";
 import { ToastContainer, toast } from "react-toastify";
 import { user_role } from "@/constants/role";
+import Link from "next/link";
+import { Eye, EyeOff } from "lucide-react";
 
 // Zod validation schema
 const loginSchema = z.object({
@@ -27,10 +28,12 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 const LoginPage = () => {
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid },
+    formState: { errors },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     mode: "onChange",
@@ -38,12 +41,10 @@ const LoginPage = () => {
 
   const onSubmit: SubmitHandler<LoginFormData> = async (data) => {
     setLoading(true);
-
     try {
       const response: LoginResponse = await userApiClient.userLogin(data);
 
       if (response.access && response.refresh) {
-        // Set in Cookies
         Cookies.set("accessToken", response.access, {
           expires: 7,
           secure: process.env.NODE_ENV === "production",
@@ -56,20 +57,15 @@ const LoginPage = () => {
           expires: 7,
           secure: process.env.NODE_ENV === "production",
         });
-
-        // Also set in localStorage
         localStorage.setItem("accessToken", response.access);
       }
 
       toast("Login Successfully", {
-        ariaLabel: "something",
         position: "top-center",
       });
 
-      // Optional delay (should be `await`)
       await new Promise((resolve) => setTimeout(resolve, 800));
 
-      // Redirect after success and set user role
       if (response.user.kind === user_role.SUPER_ADMIN) {
         localStorage.setItem("role", user_role.SUPER_ADMIN);
         window.location.href = "/admin";
@@ -92,6 +88,7 @@ const LoginPage = () => {
         <div className="w-full max-w-md">
           <div className="space-y-6">
             <div className="rounded-lg border glass-card p-6 space-y-4">
+              {/* Email */}
               <div>
                 <label className="block text-sm mb-2 font-medium text-gray-200">
                   メールアドレス
@@ -99,7 +96,7 @@ const LoginPage = () => {
                 <input
                   type="email"
                   {...register("email")}
-                  className={"glass-input  w-full p-3"}
+                  className="glass-input w-full p-3"
                   placeholder="email"
                 />
                 {errors.email && (
@@ -109,16 +106,28 @@ const LoginPage = () => {
                 )}
               </div>
 
-              <div>
+              {/* Password with Eye Icon */}
+              <div className="relative">
                 <label className="block text-sm font-medium mb-2 text-gray-200">
                   パスワード
                 </label>
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   {...register("password")}
-                  className={"glass-input  w-full p-3"}
+                  className="glass-input w-full p-3 pr-10"
                   placeholder="password"
                 />
+                <button
+                  type="button"
+                  className="absolute top-[42px] right-3 text-gray-400"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                >
+                  {showPassword ? (
+                    <EyeOff className="cursor-pointer" size={18} />
+                  ) : (
+                    <Eye className="cursor-pointer" size={18} />
+                  )}
+                </button>
                 {errors.password && (
                   <p className="mt-1 text-sm text-red-400">
                     {errors.password.message}
@@ -127,6 +136,7 @@ const LoginPage = () => {
               </div>
             </div>
 
+            {/* Submit */}
             <Button
               className="w-full"
               type="button"
@@ -136,6 +146,13 @@ const LoginPage = () => {
             >
               ログイン中...
             </Button>
+            {/* Register Link */}
+            <div className="text-center text-sm text-gray-300">
+              アカウントをお持ちではありませんか？{" "}
+              <Link href="/register" className="text-blue-400 hover:underline">
+                登録はこちら
+              </Link>
+            </div>
           </div>
         </div>
       </main>

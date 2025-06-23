@@ -8,6 +8,7 @@ import Button from "@/components/ui/Button";
 import { userApiClient } from "@/infrastructure/user/userAPIClient";
 import { Eye, EyeOff } from "lucide-react";
 import { registerSchema } from "@/schemas/userRegistration";
+import Link from "next/link";
 
 // Zod validation schema
 
@@ -88,7 +89,11 @@ const RegisterPage = () => {
                   className="absolute top-[42px] right-3 text-gray-400"
                   onClick={() => setShowPassword((prev) => !prev)}
                 >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  {showPassword ? (
+                    <EyeOff className="cursor-pointer" size={18} />
+                  ) : (
+                    <Eye className="cursor-pointer" size={18} />
+                  )}
                 </button>
                 {errors.password && (
                   <p className="mt-1 text-sm text-red-400">
@@ -114,9 +119,9 @@ const RegisterPage = () => {
                   onClick={() => setShowConfirmPassword((prev) => !prev)}
                 >
                   {showConfirmPassword ? (
-                    <EyeOff size={18} />
+                    <EyeOff className="cursor-pointer" size={18} />
                   ) : (
-                    <Eye size={18} />
+                    <Eye className="cursor-pointer" size={18} />
                   )}
                 </button>
                 {errors.confirm_password && (
@@ -137,6 +142,13 @@ const RegisterPage = () => {
             >
               登録中...
             </Button>
+            {/* Login Link */}
+            <div className="text-center text-sm text-gray-300">
+              すでにアカウントをお持ちですか？{" "}
+              <Link href="/login" className="text-blue-400 hover:underline">
+                ログイン
+              </Link>
+            </div>
           </div>
         </div>
       </main>
