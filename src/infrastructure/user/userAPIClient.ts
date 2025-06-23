@@ -73,6 +73,25 @@ class UserAPIClient {
     }
   }
 
+  public async getUserProfile(): Promise<{ email: string; kind: string }> {
+    try {
+      const response = await fetch(`${this.apiUrl}/users/profile`, {
+        method: "GET",
+        headers: this.getHeaders(),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Failed to fetch profile");
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Profile fetch error:", error);
+      throw error;
+    }
+  }
+
   public async userPhotoEditRequests(
     formData: FormData
   ): Promise<UserPhotoEditRequestResponse> {
