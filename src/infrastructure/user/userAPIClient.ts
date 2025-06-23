@@ -3,8 +3,8 @@ import {
   LoginResponse,
   UserPhotoEditRequest,
   UserPhotoEditRequestResponse,
-  UserVideoAudioEditRequest, // NEW: Import new type
-  UserVideoAudioEditRequestResponse, // NEW: Import new type
+  UserVideoAudioEditRequest,
+  UserVideoAudioEditRequestResponse,
 } from "./utils/types";
 import { baseUrl } from "@/constants/baseApi";
 
@@ -23,6 +23,33 @@ class UserAPIClient {
       Accept: "application/json",
       ...(token && { Authorization: `Bearer ${token}` }),
     };
+  }
+  public async userRegister(registerData: {
+    email: string;
+    password: string;
+    confirm_password: string;
+  }): Promise<{ detail: string }> {
+    try {
+      const response = await fetch(`${this.apiUrl}/users/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(registerData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Registration failed");
+      }
+
+      const data = await response.json();
+      return data; // { detail: "User registered successfully" }
+    } catch (error) {
+      console.error("Registration error:", error);
+      throw error;
+    }
   }
 
   public async userLogin(credentials: LoginRequest): Promise<LoginResponse> {
