@@ -29,7 +29,7 @@ export const navItems: NavItem[] = [
   {
     id: "6",
     label: "アリバイ相談チャット一覧",
-    href: "/chat-consultations",
+    href: "/admin/chat-history",
     icon: "MessageCircle",
   },
   {
@@ -76,7 +76,7 @@ export const dashboardCards: DashboardCardProps[] = [
     id: "card6",
     label: "アリバイ相談チャット一覧",
     icon: "MessageCircle",
-    href: "/admin/chat-consultations",
+    href: "/admin/chat-history",
   },
   {
     id: "card7",
