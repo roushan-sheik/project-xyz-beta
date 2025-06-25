@@ -1,61 +1,44 @@
 "use client";
-
-import React, { useEffect, useState } from "react";
-import { useForm, SubmitHandler } from "react-hook-form";
-
-import { Search, Eye } from "lucide-react";
-import Button from "@/components/ui/Button";
-
-type RequestStatus = "pending" | "in_progress" | "completed" | "cancelled";
-type RequestType = "video" | "audio";
+import Button from "@/components/admin/ui/Button";
+import React, { useEffect, useState, FormEvent, ChangeEvent, FC } from "react";
 
 interface VideoRequest {
-  id: number | string;
+  id: string;
   customer_name: string;
-  type: RequestType;
   description: string;
-  status: RequestStatus;
+  type: "video" | "audio";
+  status: "pending" | "in_progress" | "completed" | "cancelled";
   created_at: string;
 }
 
-interface FilterFormInputs {
-  searchTerm: string;
-  status: RequestStatus | "all";
+interface VideoRequestResponse {
+  requests: VideoRequest[];
+  totalPages: number;
 }
 
-const MainComponent: React.FC = () => {
+const MainComponent: FC = () => {
   const [requests, setRequests] = useState<VideoRequest[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
 
-  const { register, handleSubmit, watch, getValues } =
-    useForm<FilterFormInputs>({
-      defaultValues: {
-        searchTerm: "",
-        status: "all",
-      },
-    });
-
-  const watchedStatus = watch("status");
-
   useEffect(() => {
     fetchRequests();
-  }, [currentPage, watchedStatus]);
+  }, [currentPage, selectedStatus]);
 
-  const fetchRequests = async (): Promise<void> => {
-    setLoading(true);
-    setError(null);
+  const fetchRequests = async () => {
     try {
-      const { searchTerm, status } = getValues();
+      setLoading(true);
       const response = await fetch("/api/admin/video-requests", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           page: currentPage,
           search: searchTerm,
-          status: status,
+          status: selectedStatus,
         }),
       });
 
@@ -63,25 +46,27 @@ const MainComponent: React.FC = () => {
         throw new Error("依頼データの取得に失敗しました");
       }
 
-      const data = await response.json();
+      const data: VideoRequestResponse = await response.json();
       setRequests(data.requests || []);
       setTotalPages(data.totalPages || 1);
     } catch (err: any) {
-      setError(err.message);
+      console.error(err);
+      setError(err.message || "不明なエラーが発生しました");
     } finally {
       setLoading(false);
     }
   };
 
-  const onSearchSubmit: SubmitHandler<FilterFormInputs> = () => {
+  const handleSearch = (e: FormEvent) => {
+    e.preventDefault();
     setCurrentPage(1);
     fetchRequests();
   };
 
   const handleStatusChange = async (
-    requestId: number | string,
-    newStatus: RequestStatus
-  ): Promise<void> => {
+    requestId: string,
+    newStatus: VideoRequest["status"]
+  ) => {
     try {
       const response = await fetch("/api/admin/video-requests/update", {
         method: "POST",
@@ -93,42 +78,40 @@ const MainComponent: React.FC = () => {
         throw new Error("ステータスの更新に失敗しました");
       }
 
-      const updatedRequests = requests.map((req) =>
-        req.id === requestId ? { ...req, status: newStatus } : req
-      );
-      setRequests(updatedRequests);
+      fetchRequests();
     } catch (err: any) {
-      setError(err.message);
+      console.error(err);
+      setError(err.message || "不明なエラーが発生しました");
     }
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-white">
       <div className="flex-1">
         <header className="border-b border-gray-200 bg-white px-6 py-4">
-          <h1
-            className="text-2xl font-medium text-gray-800"
-            style={{ fontFamily: "var(--font-family-sans)" }}
-          >
+          <h1 className="text-2xl font-medium text-gray-800">
             アリバイ動画音声依頼管理
           </h1>
         </header>
 
         <main className="p-6">
-          <div className="mb-6 rounded-lg bg-white p-4 shadow-sm">
-            <form
-              onSubmit={handleSubmit(onSearchSubmit)}
-              className="flex flex-col md:flex-row gap-4 items-center"
-            >
+          <div className="mb-6 space-y-4">
+            <form onSubmit={handleSearch} className="flex gap-4">
               <input
                 type="text"
-                {...register("searchTerm")}
+                value={searchTerm}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setSearchTerm(e.target.value)
+                }
                 placeholder="依頼者名、依頼内容で検索..."
-                className="flex-1 w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-500"
+                className="flex-1 rounded-lg border border-gray-300 px-4 py-2"
               />
               <select
-                {...register("status")}
-                className="w-full md:w-auto rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-500"
+                value={selectedStatus}
+                onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                  setSelectedStatus(e.target.value)
+                }
+                className="rounded-lg border border-gray-300 px-4 py-2"
               >
                 <option value="all">全てのステータス</option>
                 <option value="pending">未着手</option>
@@ -136,75 +119,75 @@ const MainComponent: React.FC = () => {
                 <option value="completed">完了</option>
                 <option value="cancelled">キャンセル</option>
               </select>
-              <Button
-                leftIcon={<Search className="h-4 w-4" />}
-                className="bg-[#357AFF] text-white hover:bg-[#2E69DE] w-full md:w-auto"
-                type="submit"
-              >
-                検索
-              </Button>
+              <Button type="submit">検索</Button>
             </form>
           </div>
 
           {error && (
-            <div className="mb-4 rounded-lg bg-red-100 p-3 text-sm text-red-700">
+            <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-500">
               {error}
             </div>
           )}
 
           {loading ? (
-            <div className="flex justify-center py-12 text-gray-600">
-              読み込み中...
+            <div className="flex justify-center py-12">
+              <div className="text-gray-600">読み込み中...</div>
             </div>
           ) : (
-            <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    {[
-                      "依頼ID",
-                      "依頼者",
-                      "依頼種別",
-                      "依頼内容",
-                      "ステータス",
-                      "依頼日時",
-                      "操作",
-                    ].map((header) => (
-                      <th
-                        key={header}
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        {header}
-                      </th>
-                    ))}
+            <div className="overflow-hidden rounded-lg border border-gray-200">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-gray-50">
+                    <th className="border-b px-6 py-3 text-left text-sm font-medium text-gray-500">
+                      依頼ID
+                    </th>
+                    <th className="border-b px-6 py-3 text-left text-sm font-medium text-gray-500">
+                      依頼者
+                    </th>
+                    <th className="border-b px-6 py-3 text-left text-sm font-medium text-gray-500">
+                      依頼種別
+                    </th>
+                    <th className="border-b px-6 py-3 text-left text-sm font-medium text-gray-500">
+                      依頼内容
+                    </th>
+                    <th className="border-b px-6 py-3 text-left text-sm font-medium text-gray-500">
+                      ステータス
+                    </th>
+                    <th className="border-b px-6 py-3 text-left text-sm font-medium text-gray-500">
+                      依頼日時
+                    </th>
+                    <th className="border-b px-6 py-3 text-left text-sm font-medium text-gray-500">
+                      操作
+                    </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody>
                   {requests.map((request) => (
-                    <tr key={request.id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    <tr key={request.id} className="border-b last:border-b-0">
+                      <td className="px-6 py-4 text-sm text-gray-600">
                         {request.id}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      <td className="px-6 py-4 text-sm text-gray-800">
                         {request.customer_name}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      <td className="px-6 py-4 text-sm text-gray-600">
                         {request.type === "video" ? "動画" : "音声"}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">
-                        {request.description}
+                      <td className="px-6 py-4 text-sm text-gray-600">
+                        <div className="line-clamp-2">
+                          {request.description}
+                        </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <td className="px-6 py-4 text-sm">
                         <select
                           value={request.status}
-                          onChange={(e) =>
+                          onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                             handleStatusChange(
                               request.id,
-                              e.target.value as RequestStatus
+                              e.target.value as VideoRequest["status"]
                             )
                           }
-                          className="rounded-lg border border-gray-300 px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500"
+                          className="rounded-lg border border-gray-300 px-2 py-1 text-sm"
                         >
                           <option value="pending">未着手</option>
                           <option value="in_progress">作業中</option>
@@ -212,15 +195,15 @@ const MainComponent: React.FC = () => {
                           <option value="cancelled">キャンセル</option>
                         </select>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      <td className="px-6 py-4 text-sm text-gray-600">
                         {new Date(request.created_at).toLocaleString("ja-JP")}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <td className="px-6 py-4 text-sm">
                         <a
                           href={`/admin/video-requests/${request.id}`}
-                          className="text-blue-600 hover:text-blue-800 inline-flex items-center gap-1"
+                          className="text-[#357AFF] hover:text-[#2E69DE]"
                         >
-                          <Eye className="h-4 w-4" />
+                          <i className="fa-regular fa-eye mr-1"></i>
                           詳細
                         </a>
                       </td>
@@ -242,16 +225,16 @@ const MainComponent: React.FC = () => {
           )}
 
           {totalPages > 1 && (
-            <div className="mt-6 flex justify-center items-center space-x-2">
+            <div className="mt-6 flex justify-center space-x-2">
               {Array.from({ length: totalPages }, (_, i) => i + 1).map(
                 (page) => (
                   <button
                     key={page}
                     onClick={() => setCurrentPage(page)}
-                    className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+                    className={`rounded-lg px-4 py-2 ${
                       currentPage === page
-                        ? "bg-blue-600 text-white shadow-md"
-                        : "bg-white text-gray-700 hover:bg-gray-100 border"
+                        ? "bg-[#357AFF] text-white"
+                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                     }`}
                   >
                     {page}
