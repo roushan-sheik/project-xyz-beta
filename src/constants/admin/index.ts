@@ -41,7 +41,7 @@ export const navItems: NavItem[] = [
   {
     id: "8",
     label: "ダミー請求依頼一覧",
-    href: "/dummy-requests",
+    href: "/admin/invoice-requests",
     icon: "FileText",
   },
 ];
@@ -88,6 +88,6 @@ export const dashboardCards: DashboardCardProps[] = [
     id: "card8",
     label: "ダミー請求依頼一覧",
     icon: "FileText",
-    href: "/admin/dummy-requests",
+    href: "/admin/invoice-requests",
   },
 ];
