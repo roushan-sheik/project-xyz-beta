@@ -35,7 +35,7 @@ export const navItems: NavItem[] = [
   {
     id: "7",
     label: "アリバイお土産依頼一覧",
-    href: "/souvenir-requests",
+    href: "/admin/souvenir-requests",
     icon: "Gift",
   },
   {
