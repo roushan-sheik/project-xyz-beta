@@ -3,8 +3,8 @@ import {
   LoginResponse,
   UserPhotoEditRequest,
   UserPhotoEditRequestResponse,
-  UserVideoAudioEditRequest, // NEW: Import new type
-  UserVideoAudioEditRequestResponse, // NEW: Import new type
+  UserVideoAudioEditRequest,
+  UserVideoAudioEditRequestResponse,
 } from "./utils/types";
 import { baseUrl } from "@/constants/baseApi";
 
@@ -24,6 +24,33 @@ class UserAPIClient {
       ...(token && { Authorization: `Bearer ${token}` }),
     };
   }
+  public async userRegister(registerData: {
+    email: string;
+    password: string;
+    confirm_password: string;
+  }): Promise<{ detail: string }> {
+    try {
+      const response = await fetch(`${this.apiUrl}/users/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(registerData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Registration failed");
+      }
+
+      const data = await response.json();
+      return data; // { detail: "User registered successfully" }
+    } catch (error) {
+      console.error("Registration error:", error);
+      throw error;
+    }
+  }
 
   public async userLogin(credentials: LoginRequest): Promise<LoginResponse> {
     try {
@@ -42,6 +69,25 @@ class UserAPIClient {
       return data;
     } catch (error) {
       console.error("Login error:", error);
+      throw error;
+    }
+  }
+
+  public async getUserProfile(): Promise<{ email: string; kind: string }> {
+    try {
+      const response = await fetch(`${this.apiUrl}/users/profile`, {
+        method: "GET",
+        headers: this.getHeaders(),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Failed to fetch profile");
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Profile fetch error:", error);
       throw error;
     }
   }

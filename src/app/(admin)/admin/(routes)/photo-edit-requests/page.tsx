@@ -1,23 +1,22 @@
 "use client";
 import Button from "@/components/admin/ui/Button";
-import React, { useEffect, useState, FormEvent, ChangeEvent, FC } from "react";
+import React, { useEffect, useState, FormEvent, ChangeEvent } from "react";
 
-interface VideoRequest {
+interface PhotoEditRequest {
   id: string;
   customer_name: string;
   description: string;
-  type: "video" | "audio";
   status: "pending" | "in_progress" | "completed" | "cancelled";
   created_at: string;
 }
 
-interface VideoRequestResponse {
-  requests: VideoRequest[];
+interface PhotoEditResponse {
+  requests: PhotoEditRequest[];
   totalPages: number;
 }
 
-const MainComponent: FC = () => {
-  const [requests, setRequests] = useState<VideoRequest[]>([]);
+const MainComponent: React.FC = () => {
+  const [requests, setRequests] = useState<PhotoEditRequest[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -32,7 +31,7 @@ const MainComponent: FC = () => {
   const fetchRequests = async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/admin/video-requests", {
+      const response = await fetch("/api/admin/photo-edit-requests", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -46,12 +45,12 @@ const MainComponent: FC = () => {
         throw new Error("依頼データの取得に失敗しました");
       }
 
-      const data: VideoRequestResponse = await response.json();
+      const data: PhotoEditResponse = await response.json();
       setRequests(data.requests || []);
       setTotalPages(data.totalPages || 1);
     } catch (err: any) {
       console.error(err);
-      setError(err.message || "不明なエラーが発生しました");
+      setError(err.message || "予期しないエラーが発生しました");
     } finally {
       setLoading(false);
     }
@@ -63,12 +62,9 @@ const MainComponent: FC = () => {
     fetchRequests();
   };
 
-  const handleStatusChange = async (
-    requestId: string,
-    newStatus: VideoRequest["status"]
-  ) => {
+  const handleStatusChange = async (requestId: string, newStatus: string) => {
     try {
-      const response = await fetch("/api/admin/video-requests/update", {
+      const response = await fetch("/api/admin/photo-edit-requests/update", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ requestId, status: newStatus }),
@@ -81,7 +77,7 @@ const MainComponent: FC = () => {
       fetchRequests();
     } catch (err: any) {
       console.error(err);
-      setError(err.message || "不明なエラーが発生しました");
+      setError(err.message || "予期しないエラーが発生しました");
     }
   };
 
@@ -90,7 +86,7 @@ const MainComponent: FC = () => {
       <div className="flex-1">
         <header className="border-b border-gray-200 bg-white px-6 py-4">
           <h1 className="text-2xl font-medium text-gray-800">
-            アリバイ動画音声依頼管理
+            アリバイ写真加工依頼管理
           </h1>
         </header>
 
@@ -145,9 +141,6 @@ const MainComponent: FC = () => {
                       依頼者
                     </th>
                     <th className="border-b px-6 py-3 text-left text-sm font-medium text-gray-500">
-                      依頼種別
-                    </th>
-                    <th className="border-b px-6 py-3 text-left text-sm font-medium text-gray-500">
                       依頼内容
                     </th>
                     <th className="border-b px-6 py-3 text-left text-sm font-medium text-gray-500">
@@ -171,9 +164,6 @@ const MainComponent: FC = () => {
                         {request.customer_name}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-600">
-                        {request.type === "video" ? "動画" : "音声"}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">
                         <div className="line-clamp-2">
                           {request.description}
                         </div>
@@ -182,10 +172,7 @@ const MainComponent: FC = () => {
                         <select
                           value={request.status}
                           onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                            handleStatusChange(
-                              request.id,
-                              e.target.value as VideoRequest["status"]
-                            )
+                            handleStatusChange(request.id, e.target.value)
                           }
                           className="rounded-lg border border-gray-300 px-2 py-1 text-sm"
                         >
@@ -200,7 +187,7 @@ const MainComponent: FC = () => {
                       </td>
                       <td className="px-6 py-4 text-sm">
                         <a
-                          href={`/admin/video-requests/${request.id}`}
+                          href={`/admin/photo-edit-requests/${request.id}`}
                           className="text-[#357AFF] hover:text-[#2E69DE]"
                         >
                           <i className="fa-regular fa-eye mr-1"></i>
@@ -212,7 +199,7 @@ const MainComponent: FC = () => {
                   {requests.length === 0 && (
                     <tr>
                       <td
-                        colSpan={7}
+                        colSpan={6}
                         className="px-6 py-8 text-center text-gray-500"
                       >
                         依頼データが見つかりません

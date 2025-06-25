@@ -2,22 +2,22 @@
 import Button from "@/components/admin/ui/Button";
 import React, { useEffect, useState, FormEvent, ChangeEvent, FC } from "react";
 
-interface VideoRequest {
+interface LineRequest {
   id: string;
   customer_name: string;
-  description: string;
-  type: "video" | "audio";
+  scenario_summary: string;
+  desired_date: string;
   status: "pending" | "in_progress" | "completed" | "cancelled";
   created_at: string;
 }
 
-interface VideoRequestResponse {
-  requests: VideoRequest[];
+interface LineRequestResponse {
+  requests: LineRequest[];
   totalPages: number;
 }
 
 const MainComponent: FC = () => {
-  const [requests, setRequests] = useState<VideoRequest[]>([]);
+  const [requests, setRequests] = useState<LineRequest[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -32,7 +32,7 @@ const MainComponent: FC = () => {
   const fetchRequests = async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/admin/video-requests", {
+      const response = await fetch("/api/admin/line-requests", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -46,7 +46,7 @@ const MainComponent: FC = () => {
         throw new Error("依頼データの取得に失敗しました");
       }
 
-      const data: VideoRequestResponse = await response.json();
+      const data: LineRequestResponse = await response.json();
       setRequests(data.requests || []);
       setTotalPages(data.totalPages || 1);
     } catch (err: any) {
@@ -65,10 +65,10 @@ const MainComponent: FC = () => {
 
   const handleStatusChange = async (
     requestId: string,
-    newStatus: VideoRequest["status"]
+    newStatus: LineRequest["status"]
   ) => {
     try {
-      const response = await fetch("/api/admin/video-requests/update", {
+      const response = await fetch("/api/admin/line-requests/update", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ requestId, status: newStatus }),
@@ -90,7 +90,7 @@ const MainComponent: FC = () => {
       <div className="flex-1">
         <header className="border-b border-gray-200 bg-white px-6 py-4">
           <h1 className="text-2xl font-medium text-gray-800">
-            アリバイ動画音声依頼管理
+            アリバイLINE依頼管理
           </h1>
         </header>
 
@@ -145,10 +145,10 @@ const MainComponent: FC = () => {
                       依頼者
                     </th>
                     <th className="border-b px-6 py-3 text-left text-sm font-medium text-gray-500">
-                      依頼種別
+                      シナリオ概要
                     </th>
                     <th className="border-b px-6 py-3 text-left text-sm font-medium text-gray-500">
-                      依頼内容
+                      希望日時
                     </th>
                     <th className="border-b px-6 py-3 text-left text-sm font-medium text-gray-500">
                       ステータス
@@ -171,12 +171,14 @@ const MainComponent: FC = () => {
                         {request.customer_name}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-600">
-                        {request.type === "video" ? "動画" : "音声"}
+                        <div className="line-clamp-2">
+                          {request.scenario_summary}
+                        </div>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-600">
-                        <div className="line-clamp-2">
-                          {request.description}
-                        </div>
+                        {new Date(request.desired_date).toLocaleDateString(
+                          "ja-JP"
+                        )}
                       </td>
                       <td className="px-6 py-4 text-sm">
                         <select
@@ -184,7 +186,7 @@ const MainComponent: FC = () => {
                           onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                             handleStatusChange(
                               request.id,
-                              e.target.value as VideoRequest["status"]
+                              e.target.value as LineRequest["status"]
                             )
                           }
                           className="rounded-lg border border-gray-300 px-2 py-1 text-sm"
@@ -200,7 +202,7 @@ const MainComponent: FC = () => {
                       </td>
                       <td className="px-6 py-4 text-sm">
                         <a
-                          href={`/admin/video-requests/${request.id}`}
+                          href={`/admin/line-requests/${request.id}`}
                           className="text-[#357AFF] hover:text-[#2E69DE]"
                         >
                           <i className="fa-regular fa-eye mr-1"></i>

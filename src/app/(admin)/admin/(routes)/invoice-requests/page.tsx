@@ -2,22 +2,18 @@
 import Button from "@/components/admin/ui/Button";
 import React, { useEffect, useState, FormEvent, ChangeEvent, FC } from "react";
 
-interface VideoRequest {
-  id: string;
+// Interfaces
+interface InvoiceRequest {
+  id: string | number;
   customer_name: string;
-  description: string;
-  type: "video" | "audio";
-  status: "pending" | "in_progress" | "completed" | "cancelled";
+  company_name: string;
+  amount: number;
+  status: "pending" | "issued" | "cancelled" | string;
   created_at: string;
 }
 
-interface VideoRequestResponse {
-  requests: VideoRequest[];
-  totalPages: number;
-}
-
 const MainComponent: FC = () => {
-  const [requests, setRequests] = useState<VideoRequest[]>([]);
+  const [requests, setRequests] = useState<InvoiceRequest[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -31,8 +27,7 @@ const MainComponent: FC = () => {
 
   const fetchRequests = async () => {
     try {
-      setLoading(true);
-      const response = await fetch("/api/admin/video-requests", {
+      const response = await fetch("/api/admin/invoice-requests", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -43,32 +38,32 @@ const MainComponent: FC = () => {
       });
 
       if (!response.ok) {
-        throw new Error("依頼データの取得に失敗しました");
+        throw new Error("請求書データの取得に失敗しました");
       }
 
-      const data: VideoRequestResponse = await response.json();
+      const data = await response.json();
       setRequests(data.requests || []);
       setTotalPages(data.totalPages || 1);
     } catch (err: any) {
       console.error(err);
-      setError(err.message || "不明なエラーが発生しました");
+      setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSearch = (e: FormEvent) => {
+  const handleSearch = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setCurrentPage(1);
     fetchRequests();
   };
 
   const handleStatusChange = async (
-    requestId: string,
-    newStatus: VideoRequest["status"]
+    requestId: string | number,
+    newStatus: string
   ) => {
     try {
-      const response = await fetch("/api/admin/video-requests/update", {
+      const response = await fetch("/api/admin/invoice-requests/update", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ requestId, status: newStatus }),
@@ -81,7 +76,31 @@ const MainComponent: FC = () => {
       fetchRequests();
     } catch (err: any) {
       console.error(err);
-      setError(err.message || "不明なエラーが発生しました");
+      setError(err.message);
+    }
+  };
+
+  const handleDownload = async (requestId: string | number) => {
+    try {
+      const response = await fetch(
+        `/api/admin/invoice-requests/${requestId}/download`
+      );
+      if (!response.ok) {
+        throw new Error("請求書のダウンロードに失敗しました");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `invoice-${requestId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message);
     }
   };
 
@@ -90,7 +109,7 @@ const MainComponent: FC = () => {
       <div className="flex-1">
         <header className="border-b border-gray-200 bg-white px-6 py-4">
           <h1 className="text-2xl font-medium text-gray-800">
-            アリバイ動画音声依頼管理
+            ダミー請求書依頼管理
           </h1>
         </header>
 
@@ -103,7 +122,7 @@ const MainComponent: FC = () => {
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
                   setSearchTerm(e.target.value)
                 }
-                placeholder="依頼者名、依頼内容で検索..."
+                placeholder="依頼者名、会社名で検索..."
                 className="flex-1 rounded-lg border border-gray-300 px-4 py-2"
               />
               <select
@@ -114,9 +133,8 @@ const MainComponent: FC = () => {
                 className="rounded-lg border border-gray-300 px-4 py-2"
               >
                 <option value="all">全てのステータス</option>
-                <option value="pending">未着手</option>
-                <option value="in_progress">作業中</option>
-                <option value="completed">完了</option>
+                <option value="pending">未発行</option>
+                <option value="issued">発行済み</option>
                 <option value="cancelled">キャンセル</option>
               </select>
               <Button type="submit">検索</Button>
@@ -145,10 +163,10 @@ const MainComponent: FC = () => {
                       依頼者
                     </th>
                     <th className="border-b px-6 py-3 text-left text-sm font-medium text-gray-500">
-                      依頼種別
+                      会社名
                     </th>
                     <th className="border-b px-6 py-3 text-left text-sm font-medium text-gray-500">
-                      依頼内容
+                      金額
                     </th>
                     <th className="border-b px-6 py-3 text-left text-sm font-medium text-gray-500">
                       ステータス
@@ -171,27 +189,21 @@ const MainComponent: FC = () => {
                         {request.customer_name}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-600">
-                        {request.type === "video" ? "動画" : "音声"}
+                        {request.company_name}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-600">
-                        <div className="line-clamp-2">
-                          {request.description}
-                        </div>
+                        ¥{request.amount.toLocaleString()}
                       </td>
                       <td className="px-6 py-4 text-sm">
                         <select
                           value={request.status}
                           onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                            handleStatusChange(
-                              request.id,
-                              e.target.value as VideoRequest["status"]
-                            )
+                            handleStatusChange(request.id, e.target.value)
                           }
                           className="rounded-lg border border-gray-300 px-2 py-1 text-sm"
                         >
-                          <option value="pending">未着手</option>
-                          <option value="in_progress">作業中</option>
-                          <option value="completed">完了</option>
+                          <option value="pending">未発行</option>
+                          <option value="issued">発行済み</option>
                           <option value="cancelled">キャンセル</option>
                         </select>
                       </td>
@@ -199,13 +211,24 @@ const MainComponent: FC = () => {
                         {new Date(request.created_at).toLocaleString("ja-JP")}
                       </td>
                       <td className="px-6 py-4 text-sm">
-                        <a
-                          href={`/admin/video-requests/${request.id}`}
-                          className="text-[#357AFF] hover:text-[#2E69DE]"
-                        >
-                          <i className="fa-regular fa-eye mr-1"></i>
-                          詳細
-                        </a>
+                        <div className="flex space-x-3">
+                          <a
+                            href={`/admin/invoice-requests/${request.id}`}
+                            className="text-[#357AFF] hover:text-[#2E69DE]"
+                          >
+                            <i className="fa-regular fa-eye mr-1"></i>
+                            詳細
+                          </a>
+                          {request.status === "issued" && (
+                            <button
+                              onClick={() => handleDownload(request.id)}
+                              className="text-[#357AFF] hover:text-[#2E69DE]"
+                            >
+                              <i className="fa-regular fa-download mr-1"></i>
+                              ダウンロード
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -215,7 +238,7 @@ const MainComponent: FC = () => {
                         colSpan={7}
                         className="px-6 py-8 text-center text-gray-500"
                       >
-                        依頼データが見つかりません
+                        請求書データが見つかりません
                       </td>
                     </tr>
                   )}

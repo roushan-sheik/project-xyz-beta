@@ -3,78 +3,45 @@ import React, { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { ToastContainer, toast } from "react-toastify";
 import Button from "@/components/ui/Button";
 import { userApiClient } from "@/infrastructure/user/userAPIClient";
-import Cookies from "js-cookie";
-import { LoginResponse } from "@/infrastructure/user/utils/types";
-import { ToastContainer, toast } from "react-toastify";
-import { user_role } from "@/constants/role";
-import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
+import { registerSchema } from "@/schemas/userRegistration";
+import Link from "next/link";
 
 // Zod validation schema
-const loginSchema = z.object({
-  email: z
-    .string()
-    .min(1, "メールアドレスを入力してください")
-    .email("有効なメールアドレスを入力してください"),
-  password: z
-    .string()
-    .min(1, "パスワードを入力してください")
-    .min(6, "パスワードは6文字以上で入力してください"),
-});
 
-type LoginFormData = z.infer<typeof loginSchema>;
+type RegisterFormData = z.infer<typeof registerSchema>;
 
-const LoginPage = () => {
+const RegisterPage = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
     mode: "onChange",
   });
 
-  const onSubmit: SubmitHandler<LoginFormData> = async (data) => {
+  const onSubmit: SubmitHandler<RegisterFormData> = async (data) => {
     setLoading(true);
     try {
-      const response: LoginResponse = await userApiClient.userLogin(data);
-
-      if (response.access && response.refresh) {
-        Cookies.set("accessToken", response.access, {
-          expires: 7,
-          secure: process.env.NODE_ENV === "production",
-        });
-        Cookies.set("refreshToken", response.refresh, {
-          expires: 30,
-          secure: process.env.NODE_ENV === "production",
-        });
-        Cookies.set("role", response.user.kind, {
-          expires: 7,
-          secure: process.env.NODE_ENV === "production",
-        });
-        localStorage.setItem("accessToken", response.access);
-      }
-
-      toast("Login Successfully", {
+      await userApiClient.userRegister(data);
+      toast.success("登録が成功しました！", {
         position: "top-center",
       });
-
-      await new Promise((resolve) => setTimeout(resolve, 800));
-
-      if (response.user.kind === user_role.SUPER_ADMIN) {
-        localStorage.setItem("role", user_role.SUPER_ADMIN);
-        window.location.href = "/admin";
-      } else {
-        localStorage.setItem("role", user_role.USER);
-        window.location.href = "/";
-      }
-    } catch (error) {
-      console.error("Login failed:", error);
+      await new Promise((res) => setTimeout(res, 800));
+      window.location.href = "/login";
+    } catch (err) {
+      console.error(err);
+      toast.error("登録に失敗しました", {
+        position: "top-center",
+      });
     } finally {
       setLoading(false);
     }
@@ -84,7 +51,7 @@ const LoginPage = () => {
     <div className="min-h-screen main_gradient_bg text-white">
       <main className="flex min-h-screen flex-col items-center justify-center px-4">
         <ToastContainer />
-        <h2 className="text-white lg:text-3xl text-2xl mb-6">ログイン</h2>
+        <h2 className="text-white lg:text-3xl text-2xl mb-6">ユーザー登録</h2>
         <div className="w-full max-w-md">
           <div className="space-y-6">
             <div className="rounded-lg border glass-card p-6 space-y-4">
@@ -106,7 +73,7 @@ const LoginPage = () => {
                 )}
               </div>
 
-              {/* Password with Eye Icon */}
+              {/* Password */}
               <div className="relative">
                 <label className="block text-sm font-medium mb-2 text-gray-200">
                   パスワード
@@ -134,6 +101,35 @@ const LoginPage = () => {
                   </p>
                 )}
               </div>
+
+              {/* Confirm Password */}
+              <div className="relative">
+                <label className="block text-sm font-medium mb-2 text-gray-200">
+                  パスワード確認
+                </label>
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  {...register("confirm_password")}
+                  className="glass-input w-full p-3 pr-10"
+                  placeholder="confirm password"
+                />
+                <button
+                  type="button"
+                  className="absolute top-[42px] right-3 text-gray-400"
+                  onClick={() => setShowConfirmPassword((prev) => !prev)}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="cursor-pointer" size={18} />
+                  ) : (
+                    <Eye className="cursor-pointer" size={18} />
+                  )}
+                </button>
+                {errors.confirm_password && (
+                  <p className="mt-1 text-sm text-red-400">
+                    {errors.confirm_password.message}
+                  </p>
+                )}
+              </div>
             </div>
 
             {/* Submit */}
@@ -144,13 +140,13 @@ const LoginPage = () => {
               loading={loading}
               variant="glassBrand"
             >
-              ログイン中...
+              登録中...
             </Button>
-            {/* Register Link */}
+            {/* Login Link */}
             <div className="text-center text-sm text-gray-300">
-              アカウントをお持ちではありませんか？{" "}
-              <Link href="/register" className="text-blue-400 hover:underline">
-                登録はこちら
+              すでにアカウントをお持ちですか？{" "}
+              <Link href="/login" className="text-blue-400 hover:underline">
+                ログイン
               </Link>
             </div>
           </div>
@@ -160,4 +156,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default RegisterPage;

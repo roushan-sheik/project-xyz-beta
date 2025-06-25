@@ -11,37 +11,37 @@ export const navItems: NavItem[] = [
   {
     id: "3",
     label: "アリバイ加工依頼一覧",
-    href: "/process-requests",
+    href: "/admin/photo-edit-requests",
     icon: "Settings",
   },
   {
     id: "4",
     label: "アリバイ動画音声依頼一覧",
-    href: "/video-audio-requests",
+    href: "/admin/video-requests",
     icon: "PlayCircle",
   },
   {
     id: "5",
     label: "アリバイLINE依頼一覧",
-    href: "/line-requests",
+    href: "/admin/line-requests",
     icon: "MessageSquare",
   },
   {
     id: "6",
     label: "アリバイ相談チャット一覧",
-    href: "/chat-consultations",
+    href: "/admin/chat-history",
     icon: "MessageCircle",
   },
   {
     id: "7",
     label: "アリバイお土産依頼一覧",
-    href: "/souvenir-requests",
+    href: "/admin/souvenir-requests",
     icon: "Gift",
   },
   {
     id: "8",
     label: "ダミー請求依頼一覧",
-    href: "/dummy-requests",
+    href: "/admin/invoice-requests",
     icon: "FileText",
   },
 ];
@@ -58,13 +58,13 @@ export const dashboardCards: DashboardCardProps[] = [
     id: "card3",
     label: "アリバイ加工依頼一覧",
     icon: "Settings",
-    href: "/admin/process-requests",
+    href: "/admin/photo-edit-requests",
   },
   {
     id: "card4",
     label: "アリバイ動画音声依頼一覧",
     icon: "PlayCircle",
-    href: "/admin/video-audio-requests",
+    href: "/admin/video-requests",
   },
   {
     id: "card5",
@@ -76,7 +76,7 @@ export const dashboardCards: DashboardCardProps[] = [
     id: "card6",
     label: "アリバイ相談チャット一覧",
     icon: "MessageCircle",
-    href: "/admin/chat-consultations",
+    href: "/admin/chat-history",
   },
   {
     id: "card7",
@@ -88,6 +88,6 @@ export const dashboardCards: DashboardCardProps[] = [
     id: "card8",
     label: "ダミー請求依頼一覧",
     icon: "FileText",
-    href: "/admin/dummy-requests",
+    href: "/admin/invoice-requests",
   },
 ];
