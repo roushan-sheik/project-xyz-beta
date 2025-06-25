@@ -102,7 +102,6 @@ const MainComponent: React.FC = () => {
 
   const photos = galleryData?.results || [];
   const isUploading = createPhotoMutation.isPending;
-  const isDeleting = deletePhotoMutation.isPending;
 
   return (
     <div className="flex min-h-screen bg-gray-50">

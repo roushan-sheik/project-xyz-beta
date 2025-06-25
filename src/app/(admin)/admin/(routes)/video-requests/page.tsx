@@ -1,12 +1,11 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useForm, SubmitHandler } from "react-hook-form"; // react-hook-form ইম্পোর্ট
+import { useForm, SubmitHandler } from "react-hook-form";
 
-import { Search, Eye } from "lucide-react"; // Lucide আইকন ইম্পোর্ট
+import { Search, Eye } from "lucide-react";
 import Button from "@/components/ui/Button";
 
-// API থেকে আসা ডেটার জন্য টাইপ
 type RequestStatus = "pending" | "in_progress" | "completed" | "cancelled";
 type RequestType = "video" | "audio";
 
@@ -19,21 +18,18 @@ interface VideoRequest {
   created_at: string;
 }
 
-// ফিল্টার ফর্মের ডেটার জন্য টাইপ
 interface FilterFormInputs {
   searchTerm: string;
   status: RequestStatus | "all";
 }
 
 const MainComponent: React.FC = () => {
-  // কম্পোনেন্টের State
   const [requests, setRequests] = useState<VideoRequest[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
 
-  // react-hook-form সেটআপ
   const { register, handleSubmit, watch, getValues } =
     useForm<FilterFormInputs>({
       defaultValues: {
@@ -42,20 +38,17 @@ const MainComponent: React.FC = () => {
       },
     });
 
-  // স্ট্যাটাস ফিল্টারের পরিবর্তন ট্র্যাক করার জন্য watch
   const watchedStatus = watch("status");
 
-  // ডেটা fetch করার জন্য useEffect
   useEffect(() => {
     fetchRequests();
-  }, [currentPage, watchedStatus]); // currentPage বা status পরিবর্তন হলে রি-ফেচ হবে
+  }, [currentPage, watchedStatus]);
 
-  // API থেকে ডেটা fetch করার ফাংশন
   const fetchRequests = async (): Promise<void> => {
     setLoading(true);
     setError(null);
     try {
-      const { searchTerm, status } = getValues(); // ফর্ম থেকে বর্তমান ভ্যালু নেওয়া হচ্ছে
+      const { searchTerm, status } = getValues();
       const response = await fetch("/api/admin/video-requests", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -80,13 +73,11 @@ const MainComponent: React.FC = () => {
     }
   };
 
-  // ফর্ম সাবমিট হলে এই ফাংশন কল হবে
   const onSearchSubmit: SubmitHandler<FilterFormInputs> = () => {
-    setCurrentPage(1); // সার্চ করলে প্রথম পেজে ফিরে যাবে
+    setCurrentPage(1);
     fetchRequests();
   };
 
-  // স্ট্যাটাস আপডেট করার ফাংশন
   const handleStatusChange = async (
     requestId: number | string,
     newStatus: RequestStatus

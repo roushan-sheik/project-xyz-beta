@@ -17,7 +17,7 @@ export const navItems: NavItem[] = [
   {
     id: "4",
     label: "アリバイ動画音声依頼一覧",
-    href: "/video-audio-requests",
+    href: "/admin/video-requests",
     icon: "PlayCircle",
   },
   {
@@ -64,7 +64,7 @@ export const dashboardCards: DashboardCardProps[] = [
     id: "card4",
     label: "アリバイ動画音声依頼一覧",
     icon: "PlayCircle",
-    href: "/admin/video-audio-requests",
+    href: "/admin/video-requests",
   },
   {
     id: "card5",
