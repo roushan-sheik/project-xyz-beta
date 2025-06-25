@@ -11,7 +11,7 @@ export const navItems: NavItem[] = [
   {
     id: "3",
     label: "アリバイ加工依頼一覧",
-    href: "/process-requests",
+    href: "/admin/photo-edit-requests",
     icon: "Settings",
   },
   {
@@ -58,7 +58,7 @@ export const dashboardCards: DashboardCardProps[] = [
     id: "card3",
     label: "アリバイ加工依頼一覧",
     icon: "Settings",
-    href: "/admin/process-requests",
+    href: "/admin/photo-edit-requests",
   },
   {
     id: "card4",
