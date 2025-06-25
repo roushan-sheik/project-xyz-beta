@@ -23,7 +23,7 @@ export const navItems: NavItem[] = [
   {
     id: "5",
     label: "アリバイLINE依頼一覧",
-    href: "/line-requests",
+    href: "/admin/line-requests",
     icon: "MessageSquare",
   },
   {
