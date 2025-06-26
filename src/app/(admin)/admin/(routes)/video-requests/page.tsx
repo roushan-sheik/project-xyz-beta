@@ -3,11 +3,11 @@ import Button from "@/components/admin/ui/Button";
 import React, { useEffect, useState, FormEvent, ChangeEvent, FC } from "react";
 
 interface VideoRequest {
-  id: string;
+  uid: string;
   customer_name: string;
   description: string;
   type: "video" | "audio";
-  status: "pending" | "in_progress" | "completed" | "cancelled";
+  request_status: "pending" | "in_progress" | "completed" | "cancelled";
   created_at: string;
 }
 
@@ -29,24 +29,39 @@ const MainComponent: FC = () => {
     fetchRequests();
   }, [currentPage, selectedStatus]);
 
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        fetchRequests();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, []);
+
   const fetchRequests = async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/admin/video-requests", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          page: currentPage,
-          search: searchTerm,
-          status: selectedStatus,
-        }),
-      });
-
+      const token = localStorage.getItem("accessToken");
+      const params = new URLSearchParams();
+      params.append("page", String(currentPage));
+      if (searchTerm) params.append("search", searchTerm);
+      if (selectedStatus && selectedStatus !== "all") params.append("status", selectedStatus);
+      const response = await fetch(`https://15.206.185.80/gallery/admin/video-audio-edit-requests?${params.toString()}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        }
+      );
       if (!response.ok) throw new Error("依頼データの取得に失敗しました");
-
-      const data: VideoRequestResponse = await response.json();
-      setRequests(data.requests || []);
-      setTotalPages(data.totalPages || 1);
+      const data = await response.json();
+      setRequests(data.results || data.requests || []);
+      setTotalPages(data.total_pages || data.totalPages || 1);
     } catch (err: any) {
       console.error(err);
       setError(err.message || "不明なエラーが発生しました");
@@ -63,7 +78,7 @@ const MainComponent: FC = () => {
 
   const handleStatusChange = async (
     requestId: string,
-    newStatus: VideoRequest["status"]
+    newStatus: VideoRequest["request_status"]
   ) => {
     try {
       const response = await fetch("/api/admin/video-requests/update", {
@@ -161,9 +176,9 @@ const MainComponent: FC = () => {
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {requests.map((request) => (
-                  <tr key={request.id}>
+                  <tr key={request.uid}>
                     <td className="px-4 py-4 text-sm text-gray-700">
-                      {request.id}
+                      {request.uid}
                     </td>
                     <td className="px-4 py-4 text-sm text-gray-800">
                       {request.customer_name}
@@ -176,11 +191,11 @@ const MainComponent: FC = () => {
                     </td>
                     <td className="px-4 py-4 text-sm text-gray-700">
                       <select
-                        value={request.status}
+                        value={request.request_status}
                         onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                           handleStatusChange(
-                            request.id,
-                            e.target.value as VideoRequest["status"]
+                            request.uid,
+                            e.target.value as VideoRequest["request_status"]
                           )
                         }
                         className="rounded border border-gray-300 px-2 py-1 text-sm"
@@ -196,7 +211,7 @@ const MainComponent: FC = () => {
                     </td>
                     <td className="px-4 py-4 text-sm">
                       <a
-                        href={`/admin/video-requests/${request.id}`}
+                        href={`/admin/video-requests/${request.uid}`}
                         className="text-[#357AFF] hover:text-[#2E69DE]"
                       >
                         <i className="fa-regular fa-eye mr-1"></i>詳細
