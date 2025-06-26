@@ -40,10 +40,10 @@ const SubscriptionSuccessPage = () => {
           // Show success toast
           toast.success("サブスクリプションが正常に確認されました！");
 
-          // Redirect to home after 3 seconds
-          //   setTimeout(() => {
-          //     router.push("/");
-          //   }, 5000);
+          //   Redirect to home after 3 seconds
+          setTimeout(() => {
+            router.push("/");
+          }, 5000);
         } else {
           // Confirm subscription with URL session ID
           const response = await subscriptionApiClient.confirmSubscription(
@@ -87,8 +87,8 @@ const SubscriptionSuccessPage = () => {
     return (
       <div className="min-h-screen main_gradient_bg text-white flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="animate-spin mx-auto mb-4" size={48} />
-          <h1 className="text-2xl font-bold mb-2">
+          <Loader2 className="animate-spin text-white mx-auto mb-4" size={48} />
+          <h1 className="text-2xl text-white font-bold mb-2">
             サブスクリプションを確認中...
           </h1>
           <p className="text-gray-300">少々お待ちください</p>
@@ -103,7 +103,9 @@ const SubscriptionSuccessPage = () => {
         <ToastContainer />
         <div className="text-center max-w-md">
           <XCircle className="text-red-400 mx-auto mb-4" size={48} />
-          <h1 className="text-2xl font-bold mb-2">確認に失敗しました</h1>
+          <h1 className="text-2xl text-blue-300 font-bold mb-2">
+            確認に失敗しました
+          </h1>
           <p className="text-gray-300 mb-6">
             サブスクリプションの確認中にエラーが発生しました。
           </p>
@@ -116,7 +118,7 @@ const SubscriptionSuccessPage = () => {
               再試行
             </Button>
             <Button
-              onClick={() => router.push("/subscription/plans")}
+              onClick={() => router.push("/subscription-plans")}
               variant="glass"
               className="w-full"
             >
@@ -133,14 +135,18 @@ const SubscriptionSuccessPage = () => {
       <ToastContainer />
       <div className="text-center max-w-md">
         <CheckCircle className="text-green-400 mx-auto mb-4" size={48} />
-        <h1 className="text-3xl font-bold mb-2">サブスクリプション完了！</h1>
+        <h1 className="text-3xl text-white font-bold mb-2">
+          サブスクリプション完了！
+        </h1>
         <p className="text-gray-300 mb-6">
           プレミアムプランへの登録が完了しました。すべての機能をお楽しみください。
         </p>
 
         {subscriptionData && (
           <div className="glass-card p-6 rounded-lg mb-6 text-left">
-            <h3 className="font-semibold mb-3">サブスクリプション詳細</h3>
+            <h3 className="font-semibold text-white mb-3">
+              サブスクリプション詳細
+            </h3>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-300">ステータス:</span>
