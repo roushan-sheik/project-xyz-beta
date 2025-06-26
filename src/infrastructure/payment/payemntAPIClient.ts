@@ -1,5 +1,3 @@
-// infrastructure/payment/paymentAPIClient.ts
-
 import Cookies from "js-cookie";
 import {
   SubscriptionPlansResponse,

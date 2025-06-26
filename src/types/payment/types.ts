@@ -1,5 +1,3 @@
-// types/payment.ts
-
 export interface SubscriptionPlan {
   uid: string;
   name: string;
