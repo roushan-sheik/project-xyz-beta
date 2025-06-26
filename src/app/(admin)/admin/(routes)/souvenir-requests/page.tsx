@@ -20,6 +20,7 @@ const MainComponent: FC = () => {
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
+  const [totalCount, setTotalCount] = useState<number>(0);
 
   useEffect(() => {
     fetchRequests();
@@ -27,26 +28,28 @@ const MainComponent: FC = () => {
 
   const fetchRequests = async () => {
     try {
-      const response = await fetch("/api/admin/souvenir-requests", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          page: currentPage,
-          search: searchTerm,
-          status: selectedStatus,
-        }),
+      setLoading(true);
+      // Get access token from localStorage
+      const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+      const params = new URLSearchParams();
+      if (searchTerm) params.append('search', searchTerm);
+      if (selectedStatus) params.append('status', selectedStatus);
+      params.append('page', currentPage.toString());
+      const url = `https://15.206.185.80/gallery/admin/souvenir-requests?${params.toString()}`;
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(accessToken ? { 'Authorization': `Bearer ${accessToken}` } : {}),
+        },
       });
-
-      if (!response.ok) {
-        throw new Error("依頼データの取得に失敗しました");
-      }
-
+      if (!response.ok) throw new Error('依頼データの取得に失敗しました');
       const data = await response.json();
-      setRequests(data.requests || []);
+      setRequests(data.results || data); // Adjust if response shape is different
+      setTotalCount(data.count || (Array.isArray(data) ? data.length : 0));
       setTotalPages(data.totalPages || 1);
-    } catch (err: any) {
-      console.error(err);
-      setError(err.message);
+    } catch (error) {
+      setError('依頼データの取得に失敗しました');
     } finally {
       setLoading(false);
     }

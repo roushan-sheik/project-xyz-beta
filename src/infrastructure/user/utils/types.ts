@@ -67,3 +67,13 @@ export interface GalleryResponse {
   previous: string | null;
   results: GalleryItem[];
 }
+
+export interface UserSouvenirRequestResponse {
+  uid: string;
+  description: string;
+  special_note: string;
+  request_status: "pending" | "approved" | "rejected";
+  desire_delivery_date: string;
+  quantity: number;
+  media_files: GalleryItem[];
+}

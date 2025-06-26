@@ -6,6 +6,7 @@ import { cn } from "@/utils/function/cn";
 import { useUser } from "@/context/AuthContext";
 import LogoutButton from "../logout/Logout";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface MenuProfileProps {
   className?: string;
@@ -16,6 +17,7 @@ const MenuProfile: React.FC<MenuProfileProps> = ({ className }) => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
   const { user } = useUser();
+  const router = useRouter();
 
   const toggleDropdown = useCallback(() => {
     setIsOpen((prev) => !prev);
@@ -76,6 +78,10 @@ const MenuProfile: React.FC<MenuProfileProps> = ({ className }) => {
     }
   };
 
+  const handleBack = () => {
+    closeDropdown();
+  };
+
   return (
     <div className={cn("py-2 ", className)}>
       <div className="relative">
@@ -129,24 +135,23 @@ const MenuProfile: React.FC<MenuProfileProps> = ({ className }) => {
                 {isOpen && (
                   <div
                     ref={dropdownRef}
-                    className="absolute lg:right-22 right-4 mt-2 w-48 origin-top-right rounded-md glass-profile shadow-lg ring-1 ring-black ring-opacity-5 z-50 animate-in fade-in slide-in-from-top-2 duration-200"
+                    className="absolute lg:right-22 right-4 mt-2 w-64 origin-top-right rounded-2xl glass-profile shadow-2xl ring-1 ring-black ring-opacity-10 z-50 animate-in fade-in slide-in-from-top-2 duration-200 backdrop-blur-lg border border-gray-200/40"
                     role="menu"
                     aria-orientation="vertical"
                     aria-labelledby="user-menu-button"
                   >
-                    <div className="py-1">
+                    <div className="py-2 px-3 flex flex-col gap-2">
+                      {/* Remove Back Button */}
                       <Link href={"/user/profile"}>
                         <button
                           onClick={() => handleMenuItemClick("profile")}
-                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-150 focus:outline-none focus:bg-gray-100"
+                          className="block w-full text-left px-4 py-2 text-base text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-150 rounded-lg font-medium"
                           role="menuitem"
                         >
                           My Profile
                         </button>
                       </Link>
-
                       <div className="border-t border-gray-100 my-1" />
-
                       <LogoutButton size="md" className="w-full" variant="dark">
                         LogOut
                       </LogoutButton>
