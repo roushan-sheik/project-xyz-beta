@@ -5,12 +5,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Button from "@/components/ui/Button";
 import { userApiClient } from "@/infrastructure/user/userAPIClient";
+import { subscriptionApiClient } from "@/infrastructure/subscription/subscriptionAPIClient";
 import Cookies from "js-cookie";
 import { LoginResponse } from "@/infrastructure/user/utils/types";
 import { ToastContainer, toast } from "react-toastify";
 import { user_role } from "@/constants/role";
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 // Zod validation schema
 const loginSchema = z.object({
@@ -29,6 +31,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
 
   const {
     register,
@@ -39,8 +42,27 @@ const LoginPage = () => {
     mode: "onChange",
   });
 
+  const checkSubscriptionStatus = async (): Promise<string> => {
+    try {
+      const subscriptionStatus =
+        await subscriptionApiClient.getSubscriptionStatus();
+      console.log("subscriptionStatus", subscriptionStatus);
+
+      const hasActiveSubscription =
+        subscriptionStatus?.has_subscription &&
+        subscriptionStatus?.status === "active";
+
+      return hasActiveSubscription ? "/" : "/subscription-plans";
+    } catch (error) {
+      console.error("Failed to check subscription status:", error);
+      return "/subscription-plans";
+    }
+  };
+
   const onSubmit: SubmitHandler<LoginFormData> = async (data) => {
     setLoading(true);
+    console.log({ data });
+
     try {
       const response: LoginResponse = await userApiClient.userLogin(data);
 
@@ -57,24 +79,41 @@ const LoginPage = () => {
           expires: 7,
           secure: process.env.NODE_ENV === "production",
         });
+
         localStorage.setItem("accessToken", response.access);
+        localStorage.setItem("role", response.user.kind);
       }
 
-      toast("Login Successfully", {
-        position: "top-center",
-      });
+      toast.success("ログイン成功!", { position: "top-center" });
 
       await new Promise((resolve) => setTimeout(resolve, 800));
 
       if (response.user.kind === user_role.SUPER_ADMIN) {
-        localStorage.setItem("role", user_role.SUPER_ADMIN);
-        window.location.href = "/admin";
+        router.push("/admin");
       } else {
-        localStorage.setItem("role", user_role.USER);
-        window.location.href = "/";
+        const redirectUrl = await checkSubscriptionStatus();
+        console.log({ redirectUrl });
+        router.push(redirectUrl);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Login failed:", error);
+
+      if (error.response?.status === 401) {
+        toast.error("メールアドレスまたはパスワードが正しくありません", {
+          position: "top-center",
+        });
+      } else if (error.response?.status === 400) {
+        toast.error("入力内容に誤りがあります", {
+          position: "top-center",
+        });
+      } else {
+        toast.error(
+          "ログインに失敗しました。しばらく時間をおいて再度お試しください",
+          {
+            position: "top-center",
+          }
+        );
+      }
     } finally {
       setLoading(false);
     }
@@ -84,9 +123,16 @@ const LoginPage = () => {
     <div className="min-h-screen main_gradient_bg text-white">
       <main className="flex min-h-screen flex-col items-center justify-center px-4">
         <ToastContainer />
+
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold mb-2">アプリケーション</h1>
+          <p className="text-gray-300">プレミアム体験をお楽しみください</p>
+        </div>
+
         <h2 className="text-white lg:text-3xl text-2xl mb-6">ログイン</h2>
+
         <div className="w-full max-w-md">
-          <div className="space-y-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div className="rounded-lg border glass-card p-6 space-y-4">
               {/* Email */}
               <div>
@@ -97,7 +143,8 @@ const LoginPage = () => {
                   type="email"
                   {...register("email")}
                   className="glass-input w-full p-3"
-                  placeholder="email"
+                  placeholder="your@email.com"
+                  disabled={loading}
                 />
                 {errors.email && (
                   <p className="mt-1 text-sm text-red-400">
@@ -115,12 +162,14 @@ const LoginPage = () => {
                   type={showPassword ? "text" : "password"}
                   {...register("password")}
                   className="glass-input w-full p-3 pr-10"
-                  placeholder="password"
+                  placeholder="パスワードを入力"
+                  disabled={loading}
                 />
                 <button
                   type="button"
-                  className="absolute top-[42px] right-3 text-gray-400"
+                  className="absolute top-[42px] right-3 text-gray-400 hover:text-white transition-colors"
                   onClick={() => setShowPassword((prev) => !prev)}
+                  disabled={loading}
                 >
                   {showPassword ? (
                     <EyeOff className="cursor-pointer" size={18} />
@@ -136,23 +185,31 @@ const LoginPage = () => {
               </div>
             </div>
 
-            {/* Submit */}
             <Button
               className="w-full"
-              type="button"
-              onClick={handleSubmit(onSubmit)}
+              type="submit"
               loading={loading}
               variant="glassBrand"
+              disabled={loading}
             >
-              ログイン中...
+              {loading ? "ログイン中..." : "ログイン"}
             </Button>
-            {/* Register Link */}
-            <div className="text-center text-sm text-gray-300">
-              アカウントをお持ちではありませんか？{" "}
-              <Link href="/register" className="text-blue-400 hover:underline">
-                登録はこちら
-              </Link>
-            </div>
+          </form>
+
+          <div className="text-center text-sm text-gray-300 mt-6">
+            アカウントをお持ちではありませんか？{" "}
+            <Link href="/register" className="text-blue-400 hover:underline">
+              登録はこちら
+            </Link>
+          </div>
+
+          <div className="mt-8 glass-card p-4 rounded-lg text-center">
+            <p className="text-sm text-gray-300 mb-2">
+              ログイン後、プレミアムプランの選択が必要です
+            </p>
+            <p className="text-xs text-gray-400">
+              安全なStripe決済システムを使用しています
+            </p>
           </div>
         </div>
       </main>
