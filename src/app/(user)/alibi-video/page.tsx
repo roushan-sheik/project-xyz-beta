@@ -8,10 +8,7 @@ import Menu from "@/components/home/Menu";
 import { z } from "zod";
 import videoEditingSchema from "@/schemas/videoEdit";
 import { userApiClient } from "@/infrastructure/user/userAPIClient";
-import {
-  UserVideoAudioEditRequest,
-  UserVideoAudioEditRequestResponse,
-} from "@/infrastructure/user/utils/types";
+import { UserVideoAudioEditRequest, UserVideoAudioEditRequestResponse } from "@/infrastructure/user/utils/types";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Modal } from "@/components/ui/Modal";
@@ -23,12 +20,10 @@ const VideoEditingForm: React.FC = () => {
   const [mediaFile, setMediaFile] = useState<File | null>(null);
   const [mediaType, setMediaType] = useState<"video" | "audio" | null>(null);
   const [showRequestList, setShowRequestList] = useState(false);
-  const [requestList, setRequestList] = useState<
-    UserVideoAudioEditRequestResponse[]
-  >([]);
+  const [requestList, setRequestList] = useState<UserVideoAudioEditRequestResponse[]>([]);
   const [loadingRequests, setLoadingRequests] = useState(false);
   const [requestError, setRequestError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"form" | "list">("form");
+  const [activeTab, setActiveTab] = useState<'form' | 'list'>('form');
 
   const {
     register,
@@ -81,14 +76,11 @@ const VideoEditingForm: React.FC = () => {
 
       // Use fetch directly, not the current API client method
       const token = localStorage.getItem("accessToken");
-      const response = await fetch(
-        "https://15.206.185.80/gallery/video-audio-edit-requests",
-        {
-          method: "POST",
-          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-          body: formData,
-        }
-      );
+      const response = await fetch("https://15.206.185.80/gallery/video-audio-edit-requests", {
+        method: "POST",
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        body: formData,
+      });
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -137,13 +129,7 @@ const VideoEditingForm: React.FC = () => {
     setRequestError(null);
     try {
       const data = await userApiClient.getUserVideoAudioEditRequests();
-      setRequestList(
-        Array.isArray(data)
-          ? data
-          : Array.isArray(data.results)
-          ? data.results
-          : []
-      );
+      setRequestList(Array.isArray(data) ? data : (Array.isArray(data.results) ? data.results : []));
     } catch (err: any) {
       setRequestError(err.message || "依頼一覧の取得に失敗しました");
     } finally {
@@ -168,19 +154,19 @@ const VideoEditingForm: React.FC = () => {
           <div className="text-center mb-8">
             <div className="flex justify-center gap-4 mb-6">
               <Button
-                variant={activeTab === "form" ? "glassSec" : "glass"}
+                variant={activeTab === 'form' ? 'glassSec' : 'glass'}
                 className="w-full"
                 type="button"
-                onClick={() => setActiveTab("form")}
+                onClick={() => setActiveTab('form')}
               >
                 動画編集依頼
               </Button>
               <Button
-                variant={activeTab === "list" ? "glassSec" : "glass"}
+                variant={activeTab === 'list' ? 'glassSec' : 'glass'}
                 className="w-full"
                 type="button"
                 onClick={async () => {
-                  setActiveTab("list");
+                  setActiveTab('list');
                   fetchRequestList();
                 }}
               >
@@ -189,7 +175,7 @@ const VideoEditingForm: React.FC = () => {
             </div>
           </div>
 
-          {activeTab === "form" && (
+          {activeTab === 'form' && (
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className="glass-card p-8">
                 <div className="mb-8">
@@ -302,9 +288,7 @@ const VideoEditingForm: React.FC = () => {
                     placeholder="具体的な依頼内容を記入してください"
                   />
                   {errors.description && (
-                    <p className="error-message">
-                      {errors.description.message}
-                    </p>
+                    <p className="error-message">{errors.description.message}</p>
                   )}
                 </div>
 
@@ -362,7 +346,7 @@ const VideoEditingForm: React.FC = () => {
             </form>
           )}
 
-          {activeTab === "list" && (
+          {activeTab === 'list' && (
             <div className="glass-card p-8">
               <h2 className="text-lg font-semibold mb-4">依頼一覧</h2>
               {loadingRequests ? (
@@ -380,78 +364,32 @@ const VideoEditingForm: React.FC = () => {
                     >
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-blue-400 font-bold text-base flex items-center gap-2">
-                          <svg
-                            width="20"
-                            height="20"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                          >
-                            <rect
-                              width="20"
-                              height="20"
-                              rx="4"
-                              fill="#357AFF"
-                            />
-                            <path
-                              d="M7 10.5V9a5 5 0 0 1 10 0v1.5M7 10.5h10M7 10.5v3.25a2.25 2.25 0 0 0 2.25 2.25h5.5A2.25 2.25 0 0 0 17 13.75V10.5"
-                              stroke="#fff"
-                              strokeWidth="1.5"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                          </svg>
+                          <svg width='20' height='20' fill='none' viewBox='0 0 24 24'><rect width='20' height='20' rx='4' fill='#357AFF'/><path d='M7 10.5V9a5 5 0 0 1 10 0v1.5M7 10.5h10M7 10.5v3.25a2.25 2.25 0 0 0 2.25 2.25h5.5A2.25 2.25 0 0 0 17 13.75V10.5' stroke='#fff' strokeWidth='1.5' strokeLinecap='round' strokeLinejoin='round'/></svg>
                           {req.title}
                         </span>
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                            req.request_status === "completed"
-                              ? "bg-green-100 text-green-700"
-                              : req.request_status === "pending"
-                              ? "bg-yellow-100 text-yellow-700"
-                              : "bg-blue-100 text-blue-700"
-                          }`}
-                        >
-                          {req.request_status}
-                        </span>
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${req.request_status === 'completed' ? 'bg-green-100 text-green-700' : req.request_status === 'pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-100 text-blue-700'}`}>{req.request_status}</span>
                       </div>
-                      <div className="text-gray-100 text-sm mb-1 line-clamp-2">
-                        {req.description}
-                      </div>
+                      <div className="text-gray-100 text-sm mb-1 line-clamp-2">{req.description}</div>
                       <div className="flex items-center gap-2 text-xs text-gray-300 mb-1">
                         <span className="font-medium">編集タイプ:</span>
-                        <span className="capitalize">
-                          {req.edit_type
-                            ? req.edit_type.replace(/_/g, " ")
-                            : "N/A"}
-                        </span>
+                        <span className="capitalize">{req.edit_type ? req.edit_type.replace(/_/g, ' ') : 'N/A'}</span>
                       </div>
                       <div className="flex items-center gap-2 text-xs text-gray-300 mb-1">
                         <span className="font-medium">納期:</span>
-                        <span>
-                          {new Date(
-                            req.desire_delivery_date
-                          ).toLocaleDateString()}
-                        </span>
+                        <span>{new Date(req.desire_delivery_date).toLocaleDateString()}</span>
                       </div>
                       {req.special_note && (
                         <div className="text-xs text-gray-400 mb-1">
-                          <span className="font-medium">メモ:</span>{" "}
-                          {req.special_note}
+                          <span className="font-medium">メモ:</span> {req.special_note}
                         </div>
                       )}
-                      {Array.isArray(req.request_files) &&
-                        req.request_files.length > 0 && (
-                          <div className="flex flex-wrap gap-2 mt-2">
-                            {req.request_files.map((file, idx) => (
-                              <span
-                                key={idx}
-                                className="inline-block bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-mono truncate max-w-[120px]"
-                              >
-                                {file}
-                              </span>
-                            ))}
-                          </div>
-                        )}
+                      {Array.isArray(req.request_files) && req.request_files.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {req.request_files.map((file, idx) => (
+                            <span key={idx} className="inline-block bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-mono truncate max-w-[120px]">{file}</span>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
