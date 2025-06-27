@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import Menu from "@/components/home/Menu";
-import ProductCard from "@/components/ui/ProductCard";
 import { userApiClient } from "@/infrastructure/user/userAPIClient";
 import { GalleryItem } from "@/infrastructure/user/utils/types";
 import { saveAs } from "file-saver";
