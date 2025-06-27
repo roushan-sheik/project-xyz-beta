@@ -7,6 +7,7 @@ import {
 import Button from "@/components/ui/Button";
 import { ToastContainer, toast } from "react-toastify";
 import { Crown, Check, Loader2 } from "lucide-react";
+import { user_role } from "@/constants/role";
 
 const SubscriptionPlansPage = () => {
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
@@ -43,7 +44,10 @@ const SubscriptionPlansPage = () => {
 
       // Store session ID for later confirmation
       localStorage.setItem("checkout_session_id", response.session_id);
-
+      // const role = localStorage.getItem("role");
+      // if (role === user_role.SUPER_ADMIN) {
+      // window.location.href = "/admin";
+      // }
       // Redirect to Stripe checkout
       window.location.href = response.checkout_url;
     } catch (error) {

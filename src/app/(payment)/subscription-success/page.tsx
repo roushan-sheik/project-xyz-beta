@@ -5,6 +5,7 @@ import { subscriptionApiClient } from "@/infrastructure/subscription/subscriptio
 import { CheckCircle, Loader2, XCircle } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { ToastContainer, toast } from "react-toastify";
+import { user_role } from "@/constants/role";
 
 const SubscriptionSuccessPage = () => {
   const searchParams = useSearchParams();
@@ -39,6 +40,11 @@ const SubscriptionSuccessPage = () => {
 
           // Show success toast
           toast.success("サブスクリプションが正常に確認されました！");
+
+          const role = localStorage.getItem("role");
+          if (role === user_role.SUPER_ADMIN) {
+            window.location.href = "/admin";
+          }
 
           //   Redirect to home after 3 seconds
           setTimeout(() => {
