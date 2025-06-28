@@ -13,6 +13,19 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Loading from "@/components/loading/Loading";
 import { X } from "lucide-react";
+import Spinner from "@/components/ui/Spinner";
+import { baseUrl } from "@/constants/baseApi";
+import {
+  ClipboardList,
+  AlertCircle,
+  Image,
+  Hash,
+  Package,
+  Calendar,
+  Clock,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 
 const AlibiSouvenir = () => {
   const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
@@ -165,7 +178,7 @@ const AlibiSouvenir = () => {
               ギャラリーからお土産を選択
             </h2>
             {loading ? (
-              <Loading />
+              <Spinner />
             ) : (
               <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                 {galleryItems.map((item) => (
@@ -308,143 +321,225 @@ const AlibiSouvenir = () => {
         )}
 
         {activeTab === "list" && (
-          <div className="glass-card p-8 mt-8">
-            <h2 className="text-lg text-center text-white font-semibold mb-4">
-              注文一覧
-            </h2>
-            {loadingRequests ? (
-              <div className="text-center text-white">読み込み中...</div>
-            ) : requestError ? (
-              <div className="text-red-500">{requestError}</div>
-            ) : souvenirRequests.length === 0 ? (
-              <div>注文がありません。</div>
-            ) : (
-              <>
-                <div className="flex flex-col gap-0 divide-y divide-white/10">
-                  {paginatedRequests.map((req, idx) => (
-                    <div
-                      key={req.uid}
-                      className={`flex items-center gap-6 py-4 px-2 glass-card bg-white/10 hover:bg-white/20 transition-all rounded-2xl ${
-                        idx === 0 ? "mt-0" : ""
-                      }`}
-                    >
-                      {/* Images */}
-                      <div className="flex gap-2 min-w-[80px]">
-                        {Array.isArray(req.media_files) &&
-                        req.media_files.length > 0 ? (
-                          req.media_files.slice(0, 3).map((file, i) => (
-                            <div
-                              key={i}
-                              className="w-16 h-16 flex justify-center items-center rounded-xl overflow-hidden border border-white/15 bg-white/5"
-                            >
-                              <img
-                                src={
-                                  file.file.startsWith("http")
-                                    ? file.file
-                                    : `https://15.206.185.80${file.file}`
-                                }
-                                alt={`Souvenir file ${i + 1}`}
-                                className="object-cover w-full h-full rounded-xl"
-                              />
+          <div className="glass-card p-0 mt-8 overflow-hidden">
+            {/* Header */}
+            <div className="glass-heigh-pro rounded-0 px-6 py-4 border-b border-white/10">
+              <h2 className="text-xl font-semibold text-white flex items-center gap-3 font-jakarta">
+                <ClipboardList className="w-6 h-6 text-white/80" />
+                注文一覧
+              </h2>
+            </div>
+
+            <div className="p-6">
+              {loadingRequests ? (
+                <div className="flex justify-center items-center py-12">
+                  <div className="w-12 h-12 border-2 border-white/20 border-t-white animate-spin rounded-full"></div>
+                </div>
+              ) : requestError ? (
+                <div className="glass-red p-4 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <AlertCircle className="w-5 h-5 text-white/90" />
+                    <span className="text-white/90 font-medium font-jakarta">
+                      {requestError}
+                    </span>
+                  </div>
+                </div>
+              ) : souvenirRequests.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="glass-mid w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <ClipboardList className="w-10 h-10 text-white/60" />
+                  </div>
+                  <p className="text-white/80 text-lg font-medium font-jakarta mb-2">
+                    注文がありません
+                  </p>
+                  <p className="text-white/60 text-sm font-jakarta">
+                    新しい注文を作成してください
+                  </p>
+                </div>
+              ) : (
+                <>
+                  {/* Order List */}
+                  <div className="space-y-4">
+                    {paginatedRequests.map((req, idx) => (
+                      <div
+                        key={req.uid}
+                        className="glass-mid hover:glass-heigh transition-all duration-300 rounded-xl border border-white/10 hover:border-white/20 shadow-pri animate-fade-in"
+                        style={{ animationDelay: `${idx * 0.1}s` }}
+                      >
+                        <div className="p-5">
+                          <div className="flex items-start gap-4">
+                            {/* Product Images */}
+                            <div className="flex gap-2 flex-shrink-0">
+                              {Array.isArray(req.media_files) &&
+                              req.media_files.length > 0 ? (
+                                req.media_files.slice(0, 3).map((file, i) => (
+                                  <div
+                                    key={i}
+                                    className="w-16 h-16 rounded-lg overflow-hidden border border-white/20 glass shadow-pri"
+                                  >
+                                    <img
+                                      src={
+                                        file.file.startsWith("http")
+                                          ? file.file
+                                          : `${baseUrl}${file.file}`
+                                      }
+                                      alt={`商品画像 ${i + 1}`}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  </div>
+                                ))
+                              ) : (
+                                <div className="w-16 h-16 glass rounded-lg flex items-center justify-center border border-white/20">
+                                  <Image className="w-6 h-6 text-white/50" />
+                                </div>
+                              )}
+                              {Array.isArray(req.media_files) &&
+                                req.media_files.length > 3 && (
+                                  <div className="w-16 h-16 glass rounded-lg flex items-center justify-center border border-white/20">
+                                    <span className="text-white/70 text-xs font-semibold font-jakarta">
+                                      +{req.media_files.length - 3}
+                                    </span>
+                                  </div>
+                                )}
                             </div>
-                          ))
-                        ) : (
-                          <div className="w-16 h-16 flex items-center justify-center bg-white/10 rounded-xl text-gray-400 text-xl">
-                            ?
+
+                            {/* Order Details */}
+                            <div className="flex-1 min-w-0">
+                              {/* Title and Status */}
+                              <div className="flex items-start justify-between mb-3">
+                                <h3 className="text-lg font-semibold text-white truncate pr-4 font-jakarta">
+                                  {req.description?.slice(0, 50) ||
+                                    "タイトルなし"}
+                                  {req.description?.length > 50 && "..."}
+                                </h3>
+                                <span
+                                  className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap border font-jakarta ${
+                                    req.request_status === "approved"
+                                      ? "bg-green-500/20 text-green-300 border-green-400/30 backdrop-blur-sm"
+                                      : req.request_status === "pending"
+                                      ? "bg-yellow-500/20 text-yellow-300 border-yellow-400/30 backdrop-blur-sm"
+                                      : req.request_status === "rejected"
+                                      ? "bg-red-500/20 text-red-300 border-red-400/30 backdrop-blur-sm"
+                                      : "bg-blue-500/20 text-blue-300 border-blue-400/30 backdrop-blur-sm"
+                                  }`}
+                                >
+                                  {req.request_status === "approved" &&
+                                    "承認済み"}
+                                  {req.request_status === "pending" && "審査中"}
+                                  {req.request_status === "rejected" && "却下"}
+                                  {![
+                                    "approved",
+                                    "pending",
+                                    "rejected",
+                                  ].includes(req.request_status) &&
+                                    req.request_status}
+                                </span>
+                              </div>
+
+                              {/* Special Note */}
+                              {req.special_note && (
+                                <div className="glass p-3 rounded-lg mb-3 border border-white/10">
+                                  <p className="text-white/80 text-sm leading-relaxed font-jakarta">
+                                    {req.special_note}
+                                  </p>
+                                </div>
+                              )}
+
+                              {/* Order Info Grid */}
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                <div className="glass p-3 rounded-lg border border-white/10">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <Hash className="w-4 h-4 text-white/60" />
+                                    <span className="text-white/60 text-xs font-jakarta">
+                                      数量
+                                    </span>
+                                  </div>
+                                  <span className="text-white font-semibold text-lg font-jakarta">
+                                    {req.quantity}
+                                  </span>
+                                </div>
+
+                                <div className="glass p-3 rounded-lg border border-white/10">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <Calendar className="w-4 h-4 text-white/60" />
+                                    <span className="text-white/60 text-xs font-jakarta">
+                                      希望納期
+                                    </span>
+                                  </div>
+                                  <span className="text-white font-semibold text-sm font-jakarta">
+                                    {req.desire_delivery_date
+                                      ? new Date(
+                                          req.desire_delivery_date
+                                        ).toLocaleDateString("ja-JP")
+                                      : "指定なし"}
+                                  </span>
+                                </div>
+
+                                <div className="glass p-3 rounded-lg border border-white/10">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <Clock className="w-4 h-4 text-white/60" />
+                                    <span className="text-white/60 text-xs font-jakarta">
+                                      注文ID
+                                    </span>
+                                  </div>
+                                  <span className="text-white/80 font-mono text-xs font-jakarta">
+                                    {req.uid?.slice(0, 8) || "N/A"}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
                           </div>
-                        )}
+                        </div>
                       </div>
-                      {/* Details */}
-                      <div className="flex-1 flex flex-col gap-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <span className="text-blue-500 font-bold text-base flex items-center gap-2 font-jakarta truncate">
-                            <svg
-                              width="20"
-                              height="20"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                            >
-                              <rect
-                                width="20"
-                                height="20"
-                                rx="4"
-                                fill="#357AFF"
-                              />
-                              <path
-                                d="M7 10.5V9a5 5 0 0 1 10 0v1.5M7 10.5h10M7 10.5v3.25a2.25 2.25 0 0 0 2.25 2.25h5.5A2.25 2.25 0 0 0 17 13.75V10.5"
-                                stroke="#fff"
-                                strokeWidth="1.5"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
-                            {req.description?.slice(0, 32) || "No Title"}
-                          </span>
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-semibold shadow-sm border font-jakarta tracking-wide whitespace-nowrap ${
-                              req.request_status === "approved"
-                                ? "bg-green-100 text-green-700 border-green-200"
-                                : req.request_status === "pending"
-                                ? "bg-yellow-100 text-yellow-700 border-yellow-200"
-                                : "bg-blue-100 text-blue-700 border-blue-200"
-                            }`}
-                          >
-                            {req.request_status}
-                          </span>
-                        </div>
-                        <div className="text-gray-200 text-xs mb-1 line-clamp-2 font-medium font-jakarta truncate">
-                          {req.special_note}
-                        </div>
-                        <div className="flex items-center gap-4 text-xs text-gray-300 font-jakarta mt-1">
-                          <span className="font-medium">
-                            数量:{" "}
-                            <span className="font-normal">{req.quantity}</span>
-                          </span>
-                          <span className="font-medium">
-                            納期:{" "}
-                            <span className="font-normal">
-                              {req.desire_delivery_date
-                                ? new Date(
-                                    req.desire_delivery_date
-                                  ).toLocaleDateString()
-                                : "N/A"}
-                            </span>
-                          </span>
-                        </div>
+                    ))}
+                  </div>
+
+                  {/* Pagination */}
+                  {totalPages > 1 && (
+                    <div className="flex justify-center items-center gap-4 mt-8 pt-6">
+                      <div className="glass-mid rounded-full p-1 border border-white/20">
+                        <button
+                          className="px-4 py-2 text-white/80 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-jakarta rounded-full hover:bg-white/10"
+                          onClick={() =>
+                            setRequestPage((p) => Math.max(1, p - 1))
+                          }
+                          disabled={requestPage === 1}
+                        >
+                          <ChevronLeft className="w-4 h-4 mr-1 inline" />
+                          前へ
+                        </button>
+                      </div>
+
+                      <div className="glass-heigh px-4 py-2 rounded-full border border-white/20">
+                        <span className="text-white/60 text-sm font-jakarta">
+                          ページ{" "}
+                        </span>
+                        <span className="text-white font-semibold font-jakarta">
+                          {requestPage}
+                        </span>
+                        <span className="text-white/60 text-sm font-jakarta">
+                          {" "}
+                          / {totalPages}
+                        </span>
+                      </div>
+
+                      <div className="glass-mid rounded-full p-1 border border-white/20">
+                        <button
+                          className="px-4 py-2 text-white/80 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-jakarta rounded-full hover:bg-white/10"
+                          onClick={() =>
+                            setRequestPage((p) => Math.min(totalPages, p + 1))
+                          }
+                          disabled={requestPage === totalPages}
+                        >
+                          次へ
+                          <ChevronRight className="w-4 h-4 ml-1 inline" />
+                        </button>
                       </div>
                     </div>
-                  ))}
-                </div>
-                {/* Pagination Controls */}
-                {totalPages > 1 && (
-                  <div className="flex justify-center items-center gap-4 mt-8">
-                    <Button
-                      variant="glassSec"
-                      size="sm"
-                      className="rounded-full px-4 py-2 shadow border border-white/20"
-                      onClick={() => setRequestPage((p) => Math.max(1, p - 1))}
-                      disabled={requestPage === 1}
-                    >
-                      前へ
-                    </Button>
-                    <span className="text-white/80 font-semibold text-base px-3">
-                      {requestPage} / {totalPages}
-                    </span>
-                    <Button
-                      variant="glassSec"
-                      size="sm"
-                      className="rounded-full px-4 py-2 shadow border border-white/20"
-                      onClick={() =>
-                        setRequestPage((p) => Math.min(totalPages, p + 1))
-                      }
-                      disabled={requestPage === totalPages}
-                    >
-                      次へ
-                    </Button>
-                  </div>
-                )}
-              </>
-            )}
+                  )}
+                </>
+              )}
+            </div>
           </div>
         )}
         <ToastContainer />
