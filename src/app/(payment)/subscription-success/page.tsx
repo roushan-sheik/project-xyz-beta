@@ -43,7 +43,7 @@ const SubscriptionSuccessPage = () => {
 
           const role = localStorage.getItem("role");
           if (role === user_role.SUPER_ADMIN) {
-            window.location.href = "/admin";
+            router.push("/admin");
           }
 
           //   Redirect to home after 3 seconds

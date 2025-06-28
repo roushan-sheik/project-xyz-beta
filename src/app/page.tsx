@@ -10,14 +10,24 @@ import SectionContainer from "@/shared/SectionContainer";
 import Loading from "@/components/loading/Loading";
 import MenuProfile from "@/components/user/MenuProfile";
 import { useSubscriptionGuard } from "@/hooks/payment/useSubscriptionGuard";
+import { user_role } from "@/constants/role";
 
 const MainComponent = () => {
   const router = useRouter();
 
   const { subscriptionStatus, loading, hasActiveSubscription, isPremium } =
-    useSubscriptionGuard(true); // 👈 Ensures subscription required
+    useSubscriptionGuard(true);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const role = localStorage.getItem("role");
+
+    if (role === user_role.SUPER_ADMIN) {
+      router.push("/admin");
+      return;
+    }
+
     if (!loading && !hasActiveSubscription) {
       router.replace("/login");
     }
@@ -28,7 +38,7 @@ const MainComponent = () => {
       <div className="min-h-screen main_gradient_bg text-white flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-          <p>認証中...</p>
+          <p className="text-white">認証中...</p>
         </div>
       </div>
     );
