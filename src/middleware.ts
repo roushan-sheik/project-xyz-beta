@@ -15,7 +15,13 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/admin", request.url));
   }
 
-  const publicRoutes = ["/login", "/register"];
+  // ✅ Add verify-otp routes to public routes
+  const publicRoutes = [
+    "/login",
+    "/register",
+    "/user/verify-otp",
+    "/verify-otp",
+  ];
   const adminRoutes = ["/admin"];
   const subscriptionRoutes = ["/subscription"];
 

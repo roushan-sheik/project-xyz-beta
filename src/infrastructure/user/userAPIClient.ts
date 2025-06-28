@@ -151,7 +151,9 @@ class UserAPIClient {
     }
   }
 
-  public async getUserVideoAudioEditRequests(): Promise<UserVideoAudioEditRequestResponse[]> {
+  public async getUserVideoAudioEditRequests(): Promise<
+    UserVideoAudioEditRequestResponse[]
+  > {
     try {
       const response = await fetch(
         `${this.apiUrl}/gallery/video-audio-edit-requests`,
@@ -162,7 +164,9 @@ class UserAPIClient {
       );
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || `Failed to fetch video/audio edit requests`);
+        throw new Error(
+          errorData.detail || `Failed to fetch video/audio edit requests`
+        );
       }
       return await response.json();
     } catch (error) {
@@ -171,7 +175,9 @@ class UserAPIClient {
     }
   }
 
-  public async getUserPhotoEditRequests(): Promise<UserPhotoEditRequestResponse[]> {
+  public async getUserPhotoEditRequests(): Promise<
+    UserPhotoEditRequestResponse[]
+  > {
     try {
       const response = await fetch(
         `${this.apiUrl}/gallery/photo-edit-requests`,
@@ -182,7 +188,9 @@ class UserAPIClient {
       );
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || `Failed to fetch photo edit requests`);
+        throw new Error(
+          errorData.detail || `Failed to fetch photo edit requests`
+        );
       }
       return await response.json();
     } catch (error) {
@@ -211,24 +219,38 @@ class UserAPIClient {
     }
   }
 
-  public async getUserSouvenirRequests(): Promise<UserSouvenirRequestResponse[]> {
+  public async getUserSouvenirRequests(): Promise<
+    UserSouvenirRequestResponse[]
+  > {
     try {
-      const response = await fetch(
-        `${this.apiUrl}/gallery/souvenir-requests`,
-        {
-          method: "GET",
-          headers: this.getHeaders(),
-        }
-      );
+      const response = await fetch(`${this.apiUrl}/gallery/souvenir-requests`, {
+        method: "GET",
+        headers: this.getHeaders(),
+      });
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || `Failed to fetch souvenir requests`);
+        throw new Error(
+          errorData.detail || `Failed to fetch souvenir requests`
+        );
       }
       return await response.json();
     } catch (error) {
       console.error("Souvenir request list fetch error:", error);
       throw error;
     }
+  }
+  async verifyOtp(data: { otp: string }): Promise<{ detail: string }> {
+    const response = await fetch(`${this.apiUrl}/users/verify-otp`, {
+      method: "POST",
+      headers: this.getHeaders(),
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
   }
 }
 
