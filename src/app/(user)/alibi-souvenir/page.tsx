@@ -12,6 +12,7 @@ import { useForm } from "react-hook-form";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Loading from "@/components/loading/Loading";
+import { X } from "lucide-react";
 
 const AlibiSouvenir = () => {
   const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
@@ -192,102 +193,120 @@ const AlibiSouvenir = () => {
             )}
           </>
         )}
-        {/* Order Modal */}
+
         {orderModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xl">
-            <div className="glass-card bg-gradient-to-br from-white/20 to-blue-100/10 backdrop-blur-2xl rounded-3xl shadow-2xl p-0 max-w-lg w-full relative flex flex-col items-center border border-white/30 overflow-hidden">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4">
+            <div className="relative max-w-xl w-full bg-gradient-to-br from-white/10 to-blue-100/10 border border-white/20 shadow-2xl rounded-3xl p-6 backdrop-blur-2xl text-white overflow-hidden">
+              {/* Close Button */}
               <button
-                className="absolute top-4 right-4 text-red-500 hover:text-red-700 text-2xl font-bold bg-white/40 rounded-full w-10 h-10 flex items-center justify-center shadow hover:bg-white/70 transition-all z-10 border border-white/30"
+                className="absolute top-6 right-6 z-50 text-white/80 hover:text-white bg-white/20 hover:bg-white/30 border border-white/30 rounded-full w-9 h-9 flex items-center justify-center text-3xl cursor-pointer transition-all"
                 onClick={() => setOrderModal(null)}
               >
-                ×
+                <X />
               </button>
-              <div className="w-full flex items-center justify-center rounded-b-3xl p-4">
-                <img
-                  src={orderModal.file}
-                  alt={orderModal.title}
-                  className="max-h-72 max-w-72 object-contain rounded-2xl shadow-xl border border-white/20"
-                />
+
+              {/* Image Preview */}
+              <div className="flex justify-center  mb-2">
+                <div className="w-full h-52 sm:h-60 md:h-64 rounded-2xl overflow-hidden border border-white/20 shadow-lg bg-white/10 backdrop-blur-md mb-6">
+                  <img
+                    src={orderModal.file}
+                    alt={orderModal.title}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
               </div>
-              <div className="w-full px-8 py-6 flex flex-col items-center">
-                <h3 className="text-xl font-bold mb-2 text-gray-900 drop-shadow text-center">
-                  {orderModal.title}
-                </h3>
-                <form
-                  className="w-full flex flex-col gap-4"
-                  onSubmit={handleSubmit(onOrderSubmit)}
+
+              {/* Title */}
+              <h3 className="text-xl font-semibold text-center  ">
+                {orderModal.title}
+              </h3>
+
+              {/* Form */}
+              <form
+                className="w-full flex flex-col gap-4"
+                onSubmit={handleSubmit(onOrderSubmit)}
+              >
+                {/* Quantity */}
+                <div>
+                  <label className="block text-sm font-medium mb-1 text-white/80">
+                    Quantity
+                  </label>
+                  <input
+                    type="number"
+                    min={1}
+                    {...register("quantity", { required: true, min: 1 })}
+                    className="w-full p-2 rounded-lg border border-white/20 bg-white/20 text-white placeholder-white/60 focus:outline-none"
+                    placeholder="Enter quantity"
+                  />
+                  {errors.quantity && (
+                    <span className="text-xs text-red-400">
+                      Quantity must be at least 1.
+                    </span>
+                  )}
+                </div>
+
+                {/* Description */}
+                <div>
+                  <label className="block text-sm font-medium mb-1 text-white/80">
+                    Description
+                  </label>
+                  <textarea
+                    {...register("description", { required: true })}
+                    className="w-full p-3 rounded-lg border border-white/20 bg-white/20 text-white placeholder-white/60 focus:outline-none"
+                    placeholder="Provide order details..."
+                  />
+                  {errors.description && (
+                    <span className="text-xs text-red-400">
+                      Description is required.
+                    </span>
+                  )}
+                </div>
+
+                {/* Special Note */}
+                <div>
+                  <label className="block text-sm font-medium mb-1 text-white/80">
+                    Special Note
+                  </label>
+                  <textarea
+                    {...register("special_note")}
+                    className="w-full p-3 rounded-lg border border-white/20 bg-white/20 text-white placeholder-white/60 focus:outline-none"
+                    placeholder="Optional notes..."
+                  />
+                </div>
+
+                {/* Delivery Date */}
+                <div>
+                  <label className="block text-sm font-medium mb-1 text-white/80">
+                    Desired Delivery Date
+                  </label>
+                  <input
+                    type="date"
+                    {...register("desire_delivery_date", { required: true })}
+                    className="w-full p-3 rounded-lg border border-white/20 bg-white/20 text-white placeholder-white/60 focus:outline-none"
+                  />
+                  {errors.desire_delivery_date && (
+                    <span className="text-xs text-red-400">
+                      Delivery date is required.
+                    </span>
+                  )}
+                </div>
+
+                {/* Submit */}
+                <Button
+                  type="submit"
+                  variant="glassSec"
+                  size="md"
+                  className="rounded-lg shadow-md border border-white/20 mt-2 w-full"
+                  loading={submitting}
+                  disabled={submitting}
                 >
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      数量
-                    </label>
-                    <input
-                      type="number"
-                      min={1}
-                      {...register("quantity", { required: true, min: 1 })}
-                      className="glass-input w-full p-3 rounded-lg border border-white/20 bg-white/30 text-gray-900"
-                    />
-                    {errors.quantity && (
-                      <span className="text-xs text-red-500">
-                        数量は1以上で入力してください
-                      </span>
-                    )}
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      説明
-                    </label>
-                    <textarea
-                      {...register("description", { required: true })}
-                      className="glass-input w-full p-3 rounded-lg border border-white/20 bg-white/30 text-gray-900"
-                      placeholder="注文内容の詳細を入力してください"
-                    />
-                    {errors.description && (
-                      <span className="text-xs text-red-500">
-                        説明は必須です
-                      </span>
-                    )}
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      特記事項
-                    </label>
-                    <textarea
-                      {...register("special_note")}
-                      className="glass-input w-full p-3 rounded-lg border border-white/20 bg-white/30 text-gray-900"
-                      placeholder="特記事項があれば入力してください"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      納品希望日
-                    </label>
-                    <input
-                      type="date"
-                      {...register("desire_delivery_date", { required: true })}
-                      className="glass-input w-full p-3 rounded-lg border border-white/20 bg-white/30 text-gray-900"
-                    />
-                    {errors.desire_delivery_date && (
-                      <span className="text-xs text-red-500">
-                        納品希望日は必須です
-                      </span>
-                    )}
-                  </div>
-                  <Button
-                    type="submit"
-                    variant="glassSec"
-                    size="md"
-                    className="rounded-lg shadow-md border border-white/20 mt-2 w-full"
-                    loading={submitting}
-                    disabled={submitting}
-                  >
-                    注文する
-                  </Button>
-                </form>
-              </div>
+                  Place Order
+                </Button>
+              </form>
             </div>
           </div>
         )}
+
         {activeTab === "list" && (
           <div className="glass-card p-8 mt-8">
             <h2 className="text-lg text-center text-white font-semibold mb-4">
