@@ -156,16 +156,21 @@ const AlibiPhotos = () => {
             {previewImage && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
                 <div className=" glass-black max-w-xl w-full overflow-hidden relative">
+                  <div className="pt-4 pb-2 px-4">
+                    <h3 className="text-2xl text-white text-center font-semibold mb-2">
+                      {previewImage.title}
+                    </h3>
+                  </div>
                   {/* Close Button */}
                   <button
-                    className="absolute top-4 right-4 text-white/80 hover:text-white bg-white/20 hover:bg-white/30 border border-white/30 rounded-full w-9 h-9 flex items-center justify-center text-3xl cursor-pointer transition-all"
+                    className="absolute top-4 right-4 text-white/80 hover:text-white   w-9 h-9 flex items-center justify-center text-4xl cursor-pointer transition-all"
                     onClick={() => setPreviewImage(null)}
                   >
-                    <X />
+                    <X size={30} className="hover:text-red-500" />
                   </button>
 
                   {/* Image Section */}
-                  <div className="w-full h-96 bg-gradient-to-br from-white/10 to-blue-100/20 flex items-center justify-center p-4">
+                  <div className="w-full h-96 flex items-center justify-center p-4">
                     <img
                       src={previewImage.file}
                       alt={previewImage.title}
@@ -175,9 +180,6 @@ const AlibiPhotos = () => {
 
                   {/* Text Section */}
                   <div className="p-6 text-center text-white bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md">
-                    <h3 className="text-2xl font-semibold mb-2">
-                      {previewImage.title}
-                    </h3>
                     <p className="text-gray-300 text-sm mb-4">
                       {previewImage.description}
                     </p>
