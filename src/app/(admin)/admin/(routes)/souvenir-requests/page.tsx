@@ -30,26 +30,29 @@ const MainComponent: FC = () => {
     try {
       setLoading(true);
       // Get access token from localStorage
-      const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+      const accessToken =
+        typeof window !== "undefined"
+          ? localStorage.getItem("accessToken")
+          : null;
       const params = new URLSearchParams();
-      if (searchTerm) params.append('search', searchTerm);
-      if (selectedStatus) params.append('status', selectedStatus);
-      params.append('page', currentPage.toString());
+      if (searchTerm) params.append("search", searchTerm);
+      if (selectedStatus) params.append("status", selectedStatus);
+      params.append("page", currentPage.toString());
       const url = `https://15.206.185.80/gallery/admin/souvenir-requests?${params.toString()}`;
       const response = await fetch(url, {
-        method: 'GET',
+        method: "GET",
         headers: {
-          'Content-Type': 'application/json',
-          ...(accessToken ? { 'Authorization': `Bearer ${accessToken}` } : {}),
+          "Content-Type": "application/json",
+          ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
         },
       });
-      if (!response.ok) throw new Error('依頼データの取得に失敗しました');
+      if (!response.ok) throw new Error("依頼データの取得に失敗しました");
       const data = await response.json();
       setRequests(data.results || data); // Adjust if response shape is different
       setTotalCount(data.count || (Array.isArray(data) ? data.length : 0));
       setTotalPages(data.totalPages || 1);
     } catch (error) {
-      setError('依頼データの取得に失敗しました');
+      setError("依頼データの取得に失敗しました");
     } finally {
       setLoading(false);
     }
