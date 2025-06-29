@@ -8,6 +8,7 @@ import { saveAs } from "file-saver";
 import { FiDownload } from "react-icons/fi";
 import Button from "@/components/ui/Button";
 import { X } from "lucide-react";
+import Spinner from "@/components/ui/Spinner";
 
 const IMAGES_PER_PAGE = 12;
 
@@ -80,7 +81,7 @@ const AlibiPhotos = () => {
           </Button>
         </div>
         {loading ? (
-          <p className="text-white">Loading...</p>
+          <Spinner />
         ) : (
           <>
             <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
