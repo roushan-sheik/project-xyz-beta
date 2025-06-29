@@ -12,6 +12,7 @@ import {
   Download,
   Eye,
 } from "lucide-react";
+import Link from "next/link";
 
 interface FileItem {
   file_type: string;
@@ -144,13 +145,12 @@ const PhotoEditRequestDetailPage = () => {
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <button
-            onClick={() => window.history.back()}
-            className="flex items-center cursor-pointer space-x-2 text-gray-600 hover:text-gray-800 transition-colors mb-4 group"
-          >
-            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-            <span className="font-medium">一覧に戻る</span>
-          </button>
+          <Link href={"/admin/photo-edit-requests"}>
+            <button className="flex items-center cursor-pointer space-x-2 text-gray-600 hover:text-gray-800 transition-colors mb-4 group">
+              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+              <span className="font-medium">一覧に戻る</span>
+            </button>
+          </Link>
 
           <div className="flex items-center justify-between">
             <div>
