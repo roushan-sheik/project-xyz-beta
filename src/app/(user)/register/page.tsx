@@ -32,11 +32,12 @@ const RegisterPage = () => {
     setLoading(true);
     try {
       await userApiClient.userRegister(data);
-      toast.success("登録が成功しました！", {
+      toast.success("登録が成功しました！OTPを確認してください", {
         position: "top-center",
       });
       await new Promise((res) => setTimeout(res, 800));
-      window.location.href = "/login";
+      // Redirect to OTP verification instead of login
+      window.location.href = "/user/verify-otp";
     } catch (err) {
       console.error(err);
       toast.error("登録に失敗しました", {

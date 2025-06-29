@@ -43,10 +43,14 @@ const LoginPage = () => {
   });
 
   const checkSubscriptionStatus = async (): Promise<string> => {
+    const role = localStorage.getItem("role");
+
+    if (role === user_role.SUPER_ADMIN) {
+      return "/admin";
+    }
     try {
       const subscriptionStatus =
         await subscriptionApiClient.getSubscriptionStatus();
-      console.log("subscriptionStatus", subscriptionStatus);
 
       const hasActiveSubscription =
         subscriptionStatus?.has_subscription &&
@@ -77,7 +81,7 @@ const LoginPage = () => {
         });
         Cookies.set("role", response.user.kind, {
           expires: 7,
-          secure: process.env.NODE_ENV === "production",
+          path: "/",
         });
 
         localStorage.setItem("accessToken", response.access);
@@ -92,7 +96,7 @@ const LoginPage = () => {
         router.push("/admin");
       } else {
         const redirectUrl = await checkSubscriptionStatus();
-        console.log({ redirectUrl });
+
         router.push(redirectUrl);
       }
     } catch (error: any) {
@@ -123,11 +127,6 @@ const LoginPage = () => {
     <div className="min-h-screen main_gradient_bg text-white">
       <main className="flex min-h-screen flex-col items-center justify-center px-4">
         <ToastContainer />
-
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-2">アプリケーション</h1>
-          <p className="text-gray-300">プレミアム体験をお楽しみください</p>
-        </div>
 
         <h2 className="text-white lg:text-3xl text-2xl mb-6">ログイン</h2>
 

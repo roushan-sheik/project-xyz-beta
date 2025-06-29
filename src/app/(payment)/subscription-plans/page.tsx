@@ -44,10 +44,7 @@ const SubscriptionPlansPage = () => {
 
       // Store session ID for later confirmation
       localStorage.setItem("checkout_session_id", response.session_id);
-      // const role = localStorage.getItem("role");
-      // if (role === user_role.SUPER_ADMIN) {
-      // window.location.href = "/admin";
-      // }
+
       // Redirect to Stripe checkout
       window.location.href = response.checkout_url;
     } catch (error) {
