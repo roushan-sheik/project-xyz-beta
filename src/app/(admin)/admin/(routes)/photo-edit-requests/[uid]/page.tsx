@@ -1,7 +1,18 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import Button from "@/components/admin/ui/Button";
-import { useParams } from "next/navigation";
+import {
+  ArrowLeft,
+  Calendar,
+  FileText,
+  Camera,
+  Clock,
+  AlertCircle,
+  CheckCircle,
+  Loader2,
+  Download,
+  Eye,
+} from "lucide-react";
+import Link from "next/link";
 
 interface FileItem {
   file_type: string;
@@ -21,14 +32,13 @@ interface PhotoEditRequestDetail {
 }
 
 const STATUS_OPTIONS = [
-  { value: "pending", label: "未着手" },
-  { value: "in_progress", label: "作業中" },
-  { value: "completed", label: "完了" },
-  { value: "cancelled", label: "キャンセル" },
+  { value: "pending", label: "未着手", color: "bg-gray-100 text-gray-700" },
+  { value: "in_progress", label: "作業中", color: "bg-blue-100 text-blue-700" },
+  { value: "completed", label: "完了", color: "bg-green-100 text-green-700" },
+  { value: "cancelled", label: "キャンセル", color: "bg-red-100 text-red-700" },
 ];
 
 const PhotoEditRequestDetailPage = () => {
-  const { uid } = useParams() as { uid: string };
   const [data, setData] = useState<PhotoEditRequestDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -36,125 +46,271 @@ const PhotoEditRequestDetailPage = () => {
   const [statusError, setStatusError] = useState<string | null>(null);
   const [statusSuccess, setStatusSuccess] = useState<string | null>(null);
 
+  // Mock data for demonstration
   useEffect(() => {
-    if (!uid) return;
-    const fetchDetail = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
-        const response = await fetch(`https://15.206.185.80/gallery/admin/photo-edit-requests/${uid}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(accessToken ? { 'Authorization': `Bearer ${accessToken}` } : {}),
-          },
-        });
-        if (!response.ok) throw new Error('詳細データの取得に失敗しました');
-        const detail = await response.json();
-        setData(detail);
-      } catch (err: any) {
-        setError(err.message || '予期しないエラーが発生しました');
-      } finally {
-        setLoading(false);
-      }
+    const mockData: PhotoEditRequestDetail = {
+      uid: "REQ-2024-001",
+      description:
+        "プロフィール写真の背景を透明にして、明度を調整してください。全体的にプロフェッショナルな印象になるように仕上げをお願いします。",
+      special_note:
+        "急ぎの案件です。可能であれば24時間以内の納品を希望します。",
+      request_status: "in_progress",
+      request_type: "背景除去・色調補正",
+      desire_delivery_date: "2024-06-30T10:00:00Z",
+      files: [
+        {
+          file_type: "JPEGファイル",
+          user_request_file: "https://example.com/original.jpg",
+          file_status: "処理中",
+          admin_response_file: "",
+        },
+        {
+          file_type: "RAWファイル",
+          user_request_file: "https://example.com/original.raw",
+          file_status: "完了",
+          admin_response_file: "https://example.com/processed.jpg",
+        },
+      ],
     };
-    fetchDetail();
-  }, [uid]);
 
-  const handleStatusChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setTimeout(() => {
+      setData(mockData);
+      setLoading(false);
+    }, 1000);
+  }, []);
+
+  const handleStatusChange = async (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
     const newStatus = e.target.value;
     setStatusUpdating(true);
     setStatusError(null);
     setStatusSuccess(null);
-    try {
-      const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
-      let csrfToken = null;
-      if (typeof document !== 'undefined') {
-        const match = document.cookie.match(/csrftoken=([^;]+)/);
-        if (match) csrfToken = match[1];
-      }
-      if (!csrfToken && typeof window !== 'undefined') {
-        csrfToken = localStorage.getItem('csrftoken');
-      }
-      const response = await fetch(`https://15.206.185.80/gallery/admin/photo-edit-requests/${uid}/update-status`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(accessToken ? { 'Authorization': `Bearer ${accessToken}` } : {}),
-          ...(csrfToken ? { 'X-CSRFTOKEN': csrfToken } : {}),
-        },
-        body: JSON.stringify({ request_status: newStatus }),
-      });
-      if (!response.ok) throw new Error('ステータスの更新に失敗しました');
-      setStatusSuccess('ステータスが更新されました');
-      // Refresh detail
-      setData((prev) => prev ? { ...prev, request_status: newStatus } : prev);
-    } catch (err: any) {
-      setStatusError(err.message || '予期しないエラーが発生しました');
-    } finally {
+
+    // Simulate API call
+    setTimeout(() => {
+      setData((prev) => (prev ? { ...prev, request_status: newStatus } : prev));
+      setStatusSuccess("ステータスが更新されました");
       setStatusUpdating(false);
+
+      // Clear success message after 3 seconds
+      setTimeout(() => setStatusSuccess(null), 3000);
+    }, 1500);
+  };
+
+  const getStatusBadge = (status: string) => {
+    const statusOption = STATUS_OPTIONS.find((opt) => opt.value === status);
+    return statusOption ? statusOption : STATUS_OPTIONS[0];
+  };
+
+  const getFileStatusIcon = (status: string) => {
+    switch (status) {
+      case "完了":
+        return <CheckCircle className="w-4 h-4 text-green-500" />;
+      case "処理中":
+        return <Clock className="w-4 h-4 text-blue-500" />;
+      default:
+        return <AlertCircle className="w-4 h-4 text-gray-500" />;
     }
   };
 
-  if (loading) return <div className="p-8 text-center text-gray-500">読み込み中...</div>;
-  if (error) return <div className="p-8 text-center text-red-500">{error}</div>;
-  if (!data) return null;
-
-  return (
-    <div className="max-w-2xl mx-auto p-8 bg-white rounded-2xl shadow-xl mt-10">
-      <h1 className="text-2xl font-bold mb-6 text-gray-800">写真加工依頼詳細</h1>
-      <div className="mb-4">
-        <span className="font-semibold">依頼ID:</span> {data.uid}
-      </div>
-      <div className="mb-4">
-        <span className="font-semibold">依頼内容:</span> {data.description}
-      </div>
-      <div className="mb-4">
-        <span className="font-semibold">特記事項:</span> {data.special_note}
-      </div>
-      <div className="mb-4">
-        <span className="font-semibold">ステータス:</span>{" "}
-        <select
-          value={data.request_status}
-          onChange={handleStatusChange}
-          disabled={statusUpdating}
-          className="rounded border border-gray-300 px-2 py-1 text-sm ml-2"
-        >
-          {STATUS_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>{opt.label}</option>
-          ))}
-        </select>
-        {statusUpdating && <span className="ml-2 text-blue-500">更新中...</span>}
-        {statusSuccess && <span className="ml-2 text-green-600">{statusSuccess}</span>}
-        {statusError && <span className="ml-2 text-red-500">{statusError}</span>}
-      </div>
-      <div className="mb-4">
-        <span className="font-semibold">依頼タイプ:</span> {data.request_type}
-      </div>
-      <div className="mb-4">
-        <span className="font-semibold">納品希望日:</span> {new Date(data.desire_delivery_date).toLocaleString('ja-JP')}
-      </div>
-      <div className="mb-4">
-        <span className="font-semibold">ファイル一覧:</span>
-        <div className="mt-2 space-y-2">
-          {data.files && data.files.length > 0 ? (
-            data.files.map((file, idx) => (
-              <div key={idx} className="p-3 bg-gray-50 rounded-lg border border-gray-200 flex flex-col md:flex-row md:items-center gap-2">
-                <div><span className="font-medium">種別:</span> {file.file_type}</div>
-                <div><span className="font-medium">ユーザー提出:</span> <a href={file.user_request_file} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">ファイル</a></div>
-                <div><span className="font-medium">ファイル状態:</span> {file.file_status}</div>
-                {file.admin_response_file && <div><span className="font-medium">管理者納品:</span> <a href={file.admin_response_file} target="_blank" rel="noopener noreferrer" className="text-green-600 underline">ファイル</a></div>}
-              </div>
-            ))
-          ) : (
-            <div className="text-gray-400">ファイルがありません</div>
-          )}
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+        <div className="flex flex-col items-center space-y-4">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+          <p className="text-gray-600 font-medium">読み込み中...</p>
         </div>
       </div>
-      <Button className="mt-6" onClick={() => window.history.back()}>戻る</Button>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md">
+          <AlertCircle className="w-6 h-6 text-red-500 mb-2" />
+          <p className="text-red-700 font-medium">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!data) return null;
+
+  const statusBadge = getStatusBadge(data.request_status);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 py-8 px-4">
+      <div className="max-w-5xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <Link href={"/admin/photo-edit-requests"}>
+            <button className="flex items-center cursor-pointer space-x-2 text-gray-600 hover:text-gray-800 transition-colors mb-4 group">
+              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+              <span className="font-medium">一覧に戻る</span>
+            </button>
+          </Link>
+
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                写真加工依頼詳細
+              </h1>
+              <p className="text-gray-600 flex items-center space-x-2">
+                <FileText className="w-4 h-4" />
+                <span>依頼ID: {data.uid}</span>
+              </p>
+            </div>
+            <div
+              className={`px-4 py-2 rounded-full font-medium text-sm ${statusBadge.color}`}
+            >
+              {statusBadge.label}
+            </div>
+          </div>
+        </div>
+
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Main Content */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Request Details Card */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center space-x-2">
+                <Camera className="w-5 h-5 text-blue-600" />
+                <span>依頼内容</span>
+              </h2>
+
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    依頼タイプ
+                  </label>
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <span className="text-blue-800 font-medium">
+                      {data.request_type}
+                    </span>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    詳細説明
+                  </label>
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <p className="text-gray-800 leading-relaxed">
+                      {data.description}
+                    </p>
+                  </div>
+                </div>
+
+                {data.special_note && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      特記事項
+                    </label>
+                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start space-x-3">
+                      <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                      <p className="text-amber-800">{data.special_note}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Status Management Card */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                ステータス管理
+              </h3>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    現在のステータス
+                  </label>
+                  <select
+                    value={data.request_status}
+                    onChange={handleStatusChange}
+                    disabled={statusUpdating}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  >
+                    {STATUS_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Status Messages */}
+                {statusUpdating && (
+                  <div className="flex items-center space-x-2 text-blue-600 text-sm">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>更新中...</span>
+                  </div>
+                )}
+
+                {statusSuccess && (
+                  <div className="flex items-center space-x-2 text-green-600 text-sm bg-green-50 border border-green-200 rounded-lg p-3">
+                    <CheckCircle className="w-4 h-4" />
+                    <span>{statusSuccess}</span>
+                  </div>
+                )}
+
+                {statusError && (
+                  <div className="flex items-center space-x-2 text-red-600 text-sm bg-red-50 border border-red-200 rounded-lg p-3">
+                    <AlertCircle className="w-4 h-4" />
+                    <span>{statusError}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Delivery Info Card */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2">
+                <Calendar className="w-5 h-5 text-blue-600" />
+                <span>納品情報</span>
+              </h3>
+
+              <div className="space-y-3">
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">納品希望日</p>
+                  <p className="text-gray-900 font-medium">
+                    {new Date(data.desire_delivery_date).toLocaleString(
+                      "ja-JP",
+                      {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      }
+                    )}
+                  </p>
+                </div>
+
+                <div className="pt-3 border-t border-gray-100">
+                  <p className="text-sm text-gray-600">
+                    残り時間:{" "}
+                    {Math.ceil(
+                      (new Date(data.desire_delivery_date).getTime() -
+                        Date.now()) /
+                        (1000 * 60 * 60 * 24)
+                    )}{" "}
+                    日
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
 
-export default PhotoEditRequestDetailPage; 
+export default PhotoEditRequestDetailPage;
