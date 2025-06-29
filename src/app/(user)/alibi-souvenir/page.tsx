@@ -11,7 +11,6 @@ import { FiDownload } from "react-icons/fi";
 import { useForm } from "react-hook-form";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Loading from "@/components/loading/Loading";
 import { X } from "lucide-react";
 import Spinner from "@/components/ui/Spinner";
 import { baseUrl } from "@/constants/baseApi";
@@ -112,18 +111,15 @@ const AlibiSouvenir = () => {
         special_note: data.special_note,
         desire_delivery_date: data.desire_delivery_date,
       };
-      const res = await fetch(
-        "https://15.206.185.80/gallery/souvenir-requests",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-            Authorization: token ? `Bearer ${token}` : "",
-          },
-          body: JSON.stringify(payload),
-        }
-      );
+      const res = await fetch(`${baseUrl}/gallery/souvenir-requests`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
+        },
+        body: JSON.stringify(payload),
+      });
       if (!res.ok) {
         const err = await res.json();
         throw new Error(err.detail || "注文に失敗しました");
@@ -139,6 +135,7 @@ const AlibiSouvenir = () => {
       setSubmitting(false);
     }
   };
+  // console.log({ paginatedRequests });
 
   return (
     <div className="main_gradient_bg min-h-screen">
@@ -209,17 +206,23 @@ const AlibiSouvenir = () => {
 
         {orderModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4">
-            <div className="relative max-w-xl w-full bg-gradient-to-br from-white/10 to-blue-100/10 border border-white/20 shadow-2xl rounded-3xl p-6 backdrop-blur-2xl text-white overflow-hidden">
+            <div className="relative max-w-xl w-full bg-gradient-to-br from-white/10 to-blue-100/10 border border-white/20 shadow-2xl rounded-xl p-6 backdrop-blur-2xl text-white overflow-hidden">
+              <div className="pb-4">
+                {/* Title */}
+                <h3 className="text-xl font-semibold text-center  ">
+                  {orderModal.title}
+                </h3>
+              </div>
               {/* Close Button */}
               <button
-                className="absolute top-6 right-6 z-50 text-white/80 hover:text-white bg-white/20 hover:bg-white/30 border border-white/30 rounded-full w-9 h-9 flex items-center justify-center text-3xl cursor-pointer transition-all"
+                className="absolute top-4 right-4 text-white/80 hover:text-white   w-9 h-9 flex items-center justify-center text-4xl cursor-pointer transition-all"
                 onClick={() => setOrderModal(null)}
               >
-                <X />
+                <X size={30} className="hover:text-red-500" />
               </button>
 
               {/* Image Preview */}
-              <div className="flex justify-center  mb-2">
+              <div className="flex justify-center  ">
                 <div className="w-full h-52 sm:h-60 md:h-64 rounded-2xl overflow-hidden border border-white/20 shadow-lg bg-white/10 backdrop-blur-md mb-6">
                   <img
                     src={orderModal.file}
@@ -228,11 +231,6 @@ const AlibiSouvenir = () => {
                   />
                 </div>
               </div>
-
-              {/* Title */}
-              <h3 className="text-xl font-semibold text-center  ">
-                {orderModal.title}
-              </h3>
 
               {/* Form */}
               <form
@@ -359,136 +357,115 @@ const AlibiSouvenir = () => {
               ) : (
                 <>
                   {/* Order List */}
-                  <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2  w-full  gap-6">
                     {paginatedRequests.map((req, idx) => (
                       <div
                         key={req.uid}
-                        className="glass-mid hover:glass-heigh transition-all duration-300 rounded-xl border border-white/10 hover:border-white/20 shadow-pri animate-fade-in"
+                        className="rounded-2xl w-full  glass border border-slate-700/50 hover:border-blue-400/50 transition-all duration-300 p-6 shadow-xl animate-fade-in"
                         style={{ animationDelay: `${idx * 0.1}s` }}
                       >
-                        <div className="p-5">
-                          <div className="flex items-start gap-4">
-                            {/* Product Images */}
-                            <div className="flex gap-2 flex-shrink-0">
-                              {Array.isArray(req.media_files) &&
-                              req.media_files.length > 0 ? (
-                                req.media_files.slice(0, 3).map((file, i) => (
-                                  <div
-                                    key={i}
-                                    className="w-16 h-16 rounded-lg overflow-hidden border border-white/20 glass shadow-pri"
-                                  >
-                                    <img
-                                      src={
-                                        file.file.startsWith("http")
-                                          ? file.file
-                                          : `${baseUrl}${file.file}`
-                                      }
-                                      alt={`商品画像 ${i + 1}`}
-                                      className="w-full h-full object-cover"
-                                    />
-                                  </div>
-                                ))
-                              ) : (
-                                <div className="w-16 h-16 glass rounded-lg flex items-center justify-center border border-white/20">
-                                  <Image className="w-6 h-6 text-white/50" />
-                                </div>
-                              )}
-                              {Array.isArray(req.media_files) &&
-                                req.media_files.length > 3 && (
-                                  <div className="w-16 h-16 glass rounded-lg flex items-center justify-center border border-white/20">
-                                    <span className="text-white/70 text-xs font-semibold font-jakarta">
-                                      +{req.media_files.length - 3}
-                                    </span>
-                                  </div>
-                                )}
+                        {/* Header with Icon and Status */}
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                            <div className="p-2 rounded-lg bg-blue-500/20 border border-blue-400/30 flex-shrink-0">
+                              <Package className="w-5 h-5 text-blue-400" />
                             </div>
-
-                            {/* Order Details */}
-                            <div className="flex-1 min-w-0">
-                              {/* Title and Status */}
-                              <div className="flex items-start justify-between mb-3">
-                                <h3 className="text-lg font-semibold text-white truncate pr-4 font-jakarta">
-                                  {req.description?.slice(0, 50) ||
-                                    "タイトルなし"}
-                                  {req.description?.length > 50 && "..."}
-                                </h3>
-                                <span
-                                  className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap border font-jakarta ${
-                                    req.request_status === "approved"
-                                      ? "bg-green-500/20 text-green-300 border-green-400/30 backdrop-blur-sm"
-                                      : req.request_status === "pending"
-                                      ? "bg-yellow-500/20 text-yellow-300 border-yellow-400/30 backdrop-blur-sm"
-                                      : req.request_status === "rejected"
-                                      ? "bg-red-500/20 text-red-300 border-red-400/30 backdrop-blur-sm"
-                                      : "bg-blue-500/20 text-blue-300 border-blue-400/30 backdrop-blur-sm"
-                                  }`}
-                                >
-                                  {req.request_status === "approved" &&
-                                    "承認済み"}
-                                  {req.request_status === "pending" && "審査中"}
-                                  {req.request_status === "rejected" && "却下"}
-                                  {![
-                                    "approved",
-                                    "pending",
-                                    "rejected",
-                                  ].includes(req.request_status) &&
-                                    req.request_status}
-                                </span>
-                              </div>
-
-                              {/* Special Note */}
-                              {req.special_note && (
-                                <div className="glass p-3 rounded-lg mb-3 border border-white/10">
-                                  <p className="text-white/80 text-sm leading-relaxed font-jakarta">
-                                    {req.special_note}
-                                  </p>
-                                </div>
-                              )}
-
-                              {/* Order Info Grid */}
-                              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                                <div className="glass p-3 rounded-lg border border-white/10">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <Hash className="w-4 h-4 text-white/60" />
-                                    <span className="text-white/60 text-xs font-jakarta">
-                                      数量
-                                    </span>
-                                  </div>
-                                  <span className="text-white font-semibold text-lg font-jakarta">
-                                    {req.quantity}
-                                  </span>
-                                </div>
-
-                                <div className="glass p-3 rounded-lg border border-white/10">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <Calendar className="w-4 h-4 text-white/60" />
-                                    <span className="text-white/60 text-xs font-jakarta">
-                                      希望納期
-                                    </span>
-                                  </div>
-                                  <span className="text-white font-semibold text-sm font-jakarta">
-                                    {req.desire_delivery_date
-                                      ? new Date(
-                                          req.desire_delivery_date
-                                        ).toLocaleDateString("ja-JP")
-                                      : "指定なし"}
-                                  </span>
-                                </div>
-
-                                <div className="glass p-3 rounded-lg border border-white/10">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <Clock className="w-4 h-4 text-white/60" />
-                                    <span className="text-white/60 text-xs font-jakarta">
-                                      注文ID
-                                    </span>
-                                  </div>
-                                  <span className="text-white/80 font-mono text-xs font-jakarta">
-                                    {req.uid?.slice(0, 8) || "N/A"}
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
+                            <h3 className="text-blue-400 font-semibold text-lg truncate font-jakarta">
+                              {req.description?.slice(0, 40) || "タイトルなし"}
+                              {req.description?.length > 40 && "..."}
+                            </h3>
                           </div>
+                          <span
+                            className={`px-3 py-1 rounded-full text-sm font-semibold whitespace-nowrap ml-3 ${
+                              req.request_status === "approved"
+                                ? "bg-green-500 text-white"
+                                : req.request_status === "pending"
+                                ? "bg-yellow-500 text-black"
+                                : req.request_status === "rejected"
+                                ? "bg-red-500 text-white"
+                                : "bg-blue-500 text-white"
+                            }`}
+                          >
+                            {req.request_status === "approved" && "承認済み"}
+                            {req.request_status === "pending" && "審査中"}
+                            {req.request_status === "rejected" && "却下"}
+                            {!["approved", "pending", "rejected"].includes(
+                              req.request_status
+                            ) && req.request_status}
+                            {req.request_status ? req.request_status : "Status"}
+                          </span>
+                        </div>
+
+                        {/* Note/Description */}
+                        {req.special_note && (
+                          <div className="mb-4">
+                            <span className="text-white/70 text-sm font-medium font-jakarta">
+                              Note:{" "}
+                            </span>
+                            <span className="text-white text-sm font-jakarta">
+                              {req.special_note}
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Delivery Date */}
+                        <div className="mb-4">
+                          <span className="text-white/70 text-sm font-medium font-jakarta">
+                            Delivery:{" "}
+                          </span>
+                          <span className="text-white text-sm font-jakarta">
+                            {req.desire_delivery_date
+                              ? new Date(
+                                  req.desire_delivery_date
+                                ).toLocaleDateString("ja-JP")
+                              : "指定なし"}
+                          </span>
+                        </div>
+
+                        {/* Product Images */}
+                        {Array.isArray(req.media_files) &&
+                          req.media_files.length > 0 && (
+                            <div className="flex gap-2 mb-4">
+                              {req.media_files.slice(0, 4).map((file, i) => (
+                                <div
+                                  key={i}
+                                  className="w-12 h-12 rounded-lg overflow-hidden border border-white/20 bg-white/5 shadow-sm"
+                                >
+                                  <img
+                                    src={
+                                      file.file.startsWith("http")
+                                        ? file.file
+                                        : `${baseUrl}${file.file}`
+                                    }
+                                    alt={`商品画像 ${i + 1}`}
+                                    className="w-full h-full object-cover"
+                                  />
+                                </div>
+                              ))}
+                              {req.media_files.length > 4 && (
+                                <div className="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center border border-white/20">
+                                  <span className="text-white/70 text-xs font-semibold font-jakarta">
+                                    +{req.media_files.length - 4}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          )}
+
+                        {/* Additional Details */}
+                        {req.quantity && (
+                          <div className="mb-2">
+                            <span className="text-white/70 text-sm font-medium font-jakarta">
+                              Quantity:{" "}
+                            </span>
+                            <span className="text-white text-sm font-jakarta">
+                              {req.quantity}
+                            </span>
+                          </div>
+                        )}
+
+                        <div className="text-white/50 text-xs font-mono font-jakarta">
+                          ID: {req.uid?.slice(0, 8) || "N/A"}
                         </div>
                       </div>
                     ))}

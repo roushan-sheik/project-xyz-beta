@@ -316,7 +316,7 @@ export default function PhotoEditingPage() {
                   {requestList.map((req) => (
                     <div
                       key={req.uid}
-                      className="rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-lg hover:shadow-xl hover:border-blue-400 transition-all p-6 flex flex-col gap-3 text-white"
+                      className="rounded-xl bg-white/10 backdrop-blur-md border border-white/20 shadow-lg hover:shadow-xl hover:border-blue-400 transition-all p-6 flex flex-col gap-3 text-white"
                     >
                       {/* Header with Title and Status */}
                       <div className="flex items-center justify-between">
