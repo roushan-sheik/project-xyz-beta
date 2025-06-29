@@ -206,7 +206,7 @@ const AlibiSouvenir = () => {
 
         {orderModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4">
-            <div className="relative max-w-xl w-full bg-gradient-to-br from-white/10 to-blue-100/10 border border-white/20 shadow-2xl rounded-3xl p-6 backdrop-blur-2xl text-white overflow-hidden">
+            <div className="relative max-w-xl w-full bg-gradient-to-br from-white/10 to-blue-100/10 border border-white/20 shadow-2xl rounded-xl p-6 backdrop-blur-2xl text-white overflow-hidden">
               <div className="pb-4">
                 {/* Title */}
                 <h3 className="text-xl font-semibold text-center  ">
